@@ -21,7 +21,7 @@ LinkLandingInvalid 为原稿直接沿用。本批没有深色稿，深色按令�
 
 | 区域 | 组件 | 数据 | 交互 |
 | --- | --- | --- | --- |
-| 商品卡 | `ProductCard`（大卡）、`PlatformBadge`（14px）、`PriceTag`、`DisclaimerFooter` | getLink 卡片 | 不显示返利金额；`BuyButton` 不拼「预估返」 |
+| 商品卡 | `ProductCard`（大卡）、`PlatformBadge`（标题标签形态：实底文字标签，底色 `color.platform.tag.*`、字 `color.text.inverse`，文案表 C `platform.tag.*`；03 §10.2）、`PriceTag`、`DisclaimerFooter` | getLink 卡片 | 不显示返利金额；`BuyButton` 不拼「预估返」 |
 | 购买 | `BuyButton` | link_id | 点了才调 openLink |
 | 失效 | `EmptyState` | — | 回首页 |
 
@@ -42,4 +42,4 @@ LinkLandingInvalid 为原稿直接沿用。本批没有深色稿，深色按令�
 
 ## 7. 待定与不一致
 
-- 无。
+- 2026-11-05 商品详情 v3 定稿（`docs/changes/20261105-商品详情v3定稿.md`）：卡片标题前的平台标识改为实底文字标签（03 §10.2 `PlatformBadge` 标题标签形态）；`BuyButton` 只写「购买」（`btn.buy`，2026-11-05 起，原「去购买」；代理补全的默认，BR-TEXT-12 细则「购买按钮」），仍不显示返利金额；画板待同步。

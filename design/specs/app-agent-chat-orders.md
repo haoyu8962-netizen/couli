@@ -26,7 +26,7 @@
 
 | 区域 | 组件 | 数据（卡片字段，04 §8.3） | 交互 |
 | --- | --- | --- | --- |
-| 订单卡 | `PlatformBadge`（14px）+ 标题（好友买的其他商品显示 `order_list.other_product`）+ 状态 + 原因 + 预估返 + 预计结算月份；不放订单号、实付、件数、时间、商品图 | order_id、platform、title、is_other_product、display_status、reason、est_rebate_fen、expected_credit_period | 【查看订单】进 `OrderDetail`，返回回到对话 |
+| 订单卡 | `PlatformBadge`（标题标签形态：实底文字标签，底色 `color.platform.tag.*`、字 `color.text.inverse`，文案表 C `platform.tag.*`；03 §10.2）+ 标题（好友买的其他商品显示 `order_list.other_product`）+ 状态 + 原因 + 预估返 + 预计结算月份；不放订单号、实付、件数、时间、商品图 | order_id、platform、title、is_other_product、display_status、reason、est_rebate_fen、expected_credit_period | 【查看订单】进 `OrderDetail`，返回回到对话 |
 | 登录 / 绑手机卡、找回草稿卡、客服卡 | 同一「图标 + 标题 + 按钮」卡片版式 | reason；platform、order_no、click_times[]；entry、summary | 登录先登记 `pending_action`；客服打开企业微信 |
 | 找回草稿卡 | 回显平台、订单号、本人最近打开该平台的时间 + 用户自选「付款日期」+【提交找回】 | 见左 | 用户点了才提交；结果承接同找回页（成功与 30205 打开找回记录，30203 / RISK_BLOCKED / 30206 置灰，30201 / 30202.* / 30204 显示在对应输入下） |
 | 收益卡 | 两列 `AmountGrid`（可提现、预估收益 + 最早预计月份或「入账核对中」）+ 最近一笔提现（状态标题 + 申请金额）+「更新于 hh:mm」+ 并排两个次按钮 | as_of、withdrawable_fen、estimated_total_fen、next_credit_period、credit_overdue、latest_withdrawal{title_key, amount_fen} | 【去钱包】【看提现记录】点了才打开、不带参数；本机金额隐藏时显示「****」；不写本机缓存 |
@@ -64,3 +64,4 @@
 - 待上游（08 BR-TEXT-14 / BR-TEXT-22 补键）：收益卡「最近一笔提现」；auth_required 卡标题「登录后查订单」「绑定手机号后查订单」；找回草稿卡标题「找回这笔订单」、打开时间一行与「付款日期」输入；客服卡说明句。
 - 待上游（编排，BR-TEXT-16）：顶部「使用模型：通义千问（阿里云百炼）」是登记后的示例，登记前应为「内测模型」；两批画板写法一致，稿上改不改由编排定。
 - 待上游（契约线）：`agent.earnings.*`、`clipboard.paste_hint.agent` 已在 08，`contracts/texts.default.json` 尚未收录。
+- 2026-11-05 商品详情 v3 定稿（`docs/changes/20261105-商品详情v3定稿.md`；负责人「列表卡也统一用这种平台标签」，订单卡在列）：订单卡（订单详情为商品区）标题前的平台标识改为实底文字标签（03 §10.2 `PlatformBadge` 标题标签形态，`platform.tag.*`，01 F-ORD-07），不再用 14px 官方图标；画板待同步。

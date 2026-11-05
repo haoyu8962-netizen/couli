@@ -31,7 +31,7 @@
 | 搜索框 | 输入框 + 框内【粘贴】（iOS / 鸿蒙系统控件，有输入时换清除键） | `q` | 粘贴只填入输入框（BR-ID-16 手动粘贴「填入输入框」）；链接或口令点【搜索】走 parseInput 直达详情（F-PROD-02） |
 | 平台切换 | Tab + `PlatformBadge`（20px 官方图标） | `platform` | 默认 Tab 按 F-PROD-01；关闭的平台不出 Tab（BR-PROD-10 细则） |
 | 排序 / 筛选 | 排序条、价格区间、只看有券 | `sort`、`has_coupon`、价格区间 | 改条件重新请求 |
-| 列表 | `ProductCard`（紧凑）、`PlatformBadge`（14px）、`RebateTag`、`BuyButton`、`DisclaimerFooter` | items[] | 卡片 → `ProductDetail`；购买见 app-product-buy |
+| 列表 | `ProductCard`（紧凑）、`PlatformBadge`（标题标签形态：实底文字标签，底色 `color.platform.tag.*`、字 `color.text.inverse`，文案表 C `platform.tag.*`；03 §10.2）、`RebateTag`、`BuyButton`、`DisclaimerFooter` | items[] | 卡片 → `ProductDetail`；购买见 app-product-buy |
 | 三家都关 | 说明 + 粘贴入口（iOS 写法） | — | 只留返回、说明与粘贴入口 |
 
 ## 3. 文案键
@@ -58,3 +58,4 @@
 
 - 待上游（契约）：搜索热词、关键词直达（F-PROD-03）在契约里还没有下发字段，补齐前输入页「搜索发现」不实现数据，只留历史。
 - ~~待上游（契约）：`texts.default.json` 暂无 `search.placeholder`、`price_basis*` 键。~~ 2026-11-04 核：代码主干契约已含这两组键，关闭。
+- 2026-11-05 商品详情 v3 定稿带出的组件改动（`docs/changes/20261105-商品详情v3定稿.md`；负责人「列表卡也统一用这种平台标签」，并定这类改动按规划好的组件为标准）：卡片标题前的平台标识改为实底文字标签（03 §10.2 `PlatformBadge` 标题标签形态，`platform.tag.*`），购买按钮改为一行「购买预估返 ¥x」（`btn.buy.rebate`；拿不到金额「购买可返利」，08 BR-TEXT-12 细则「购买按钮」），卡上不显示「预估返后」（BR-PRICE-09）；券前行等其余写法等列表卡改版时按组件规范统一；列表底部口径句与卡上 i 图标照旧（BR-PRICE-03；列表卡改版时按组件规范复核，变更记录 §7）。本页画板仍是旧写法，按组件实现，画板待同步。
