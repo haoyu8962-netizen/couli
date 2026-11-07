@@ -80,6 +80,6 @@
 ## 7. 被锁住的东西与解锁方式
 
 - **目录标记**：`CAT` 的 KIND 标记按实际实现改正，系统控件的条目改为系统样例，只为 L2 业务组件保留完整状态矩阵。
-- **样式检查**：LINT-STYLE-harmony 按总则 §5 第 0 步定口径（禁写死样式保留；禁自绘系统控件；新增拦 `EdgeEffect.None` 与 `hideTitleBar(true)` 的规则，确需的走白名单）。
+- **样式检查**：LINT-STYLE-harmony 只管禁写死样式（D10-901 ①）。禁自绘系统控件、拦 `EdgeEffect.None` 与 `hideTitleBar(true)` 归组件冲刺第 0 步 FU-HM-G1-SYSTEM-CONTROLS：独立脚本 + 独立基线，确需的走白名单，同步把冻结收窄到实际依赖的业务组件（D10-901 ②、D10-951，2026-11-08）。
 - **截图比对**（03 §11 的 hdc 截图，像素差 ≤1%）：只作本端回归基线；换系统组件按批次重出。
 - **BottomTabBarStyle 的 Symbol 支持**：已核实支持（2026-11-07，API 12 起有 `TabBarSymbol`），底栏切到 `BottomTabBarStyle`，见 §1 底栏行（D10-909）。
