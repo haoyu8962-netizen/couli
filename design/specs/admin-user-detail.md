@@ -54,7 +54,7 @@
 | --- | --- | --- |
 | adminGetUser | 进入、操作后刷新 | 10001、10403、40401 |
 | adminRevealUser | 【查看】 | 10003（step-up）、10403 |
-| adminListLedger / Orders / Claims / Withdrawals / RiskHits | 切页签、切页 | 10403（fund.view 等） |
+| adminListLedger / Orders / Claims / Withdrawals / RiskHits | 切页签、切页 | 10403（缺对应权限；只持 user.lookup 时内部字段置空而非 10403，见 §5） |
 | adminListInvitees | 直推名单 | 10403 |
 | adminChangeUserLevel | 调等级提交 | 10003、20001 |
 | adminChangeInviter | 改上级提交 | 30409、30401、30403、10003 |
@@ -63,7 +63,7 @@
 
 ## 5. 权限点与开关（04 §11.1 / §11.2）
 
-`user.lookup` / `user.list`（看）；`pii.reveal_phone`、`pii.reveal_identity`（查看，动态码）；`fund.view`（余额、流水、提现页签）；`user.level`、`user.inviter`（动态码）；`fund.adjust`（短信）；`union.binding_reset`（只淘宝）、`union.binding_disable`；`risk.freeze`、`risk.ban`、`risk.blocklist`；`user.realname_fix`、`user.phone_change`、`user.data_export`。短信档按钮在账号未登记验证手机号时置灰并提示（BR-ID-45 细则，2026-10-23 自 BR-ID-34 细则拆出）。
+`user.lookup` / `user.list`（看）；`pii.reveal_phone`、`pii.reveal_identity`（查看，动态码）；余额、流水、提现页签：`user.lookup` 只读，内部字段置空（驳回备注、风险标签与阈值、自动审核条件、冻结来源、调账备注等手写文字，D10-1042 / D10-1048 / D10-1049，与 04 §11.1 一致），`withdraw.review` / `fund.view` 看全量；`user.level`、`user.inviter`（动态码）；`fund.adjust`（短信）；`union.binding_reset`（只淘宝）、`union.binding_disable`；`risk.freeze`、`risk.ban`、`risk.blocklist`；`user.realname_fix`、`user.phone_change`、`user.data_export`。短信档按钮在账号未登记验证手机号时置灰并提示（BR-ID-45 细则，2026-10-23 自 BR-ID-34 细则拆出）。
 
 ## 6. 稿上没画、实现要做的
 

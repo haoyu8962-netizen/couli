@@ -55,7 +55,7 @@
 
 ## 5. 权限点与开关（04 §11.1）
 
-`fund.view`（单个用户流水）；`export`（导出与导出记录）；`pii.reveal_phone` / `pii.reveal_identity`（未勾选时导出脱敏值）；`audit.view_all`（看全部账号的导出任务，否则只看本人）。本页无写操作，不需二次验证。
+`fund.view`（单个用户流水；用户详情里的流水页签另按 admin-user-detail §5：`user.lookup` 只读、内部字段置空，D10-1049）；`export`（导出与导出记录）；`pii.reveal_phone` / `pii.reveal_identity`（未勾选时导出脱敏值）；`audit.view_all`（看全部账号的导出任务，否则只看本人）。本页无写操作，不需二次验证。
 
 ## 6. 稿上没画、实现要做的
 
