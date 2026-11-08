@@ -47,7 +47,7 @@
 | operationId | 什么时候调 | 本页会遇到的错误码 |
 | --- | --- | --- |
 | adminListLedgerEntries | 查询、切页、重试 | 10001、10403、20001（UID 缺失或格式） |
-| adminGetUserFundSummary | 查询命中后 | 40401 |
+| adminGetUserFundSummary | 查询命中后 | 20001（用户不存在，照仓库惯例，D10-1057） |
 | adminCreateExport | 【导出当前筛选】 | 10403 |
 | adminListExports | 进入导出记录、切页签、筛选 | 10403 |
 | adminGetExportDownloadUrl | 【下载】 | 已过期 / 已取消（按 `contracts/error-codes.yaml`）；每次写审计 |
