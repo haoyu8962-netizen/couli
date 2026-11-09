@@ -150,6 +150,8 @@
 
 2026-11-09 并号 10010 的处理指针（编排裁定 D10-1109；docs/changes/20261109-裁定回写批次.md §10；00 §8 第 ① 类指针同步）：BR-TEXT-14 表 A error.10010 的处理列加并号例外，指向 BR-ID-06 细则「待加验账号」。文案不变，状态不变。
 
+2026-11-09 convert.off_reason 未配置时的取值（编排裁定 D10-1145；BR-TEXT-14 此项本为代理可自定的默认值，00 §8 第 ① 类）：细则由「默认 maintenance」改为未配置时按 not_launched，与 04 §10 features.platform_status 的派生规则、配置登记表同源：开关默认 off 时没配原因的多半是尚未放量的平台，按 maintenance 会把未开放平台提示成「维护中」。熔断触发的关闭仍一律 maintenance。
+
 ### 12.1 规则一览
 
 | 编号 | 规则 | 状态 | 影响面 |
@@ -1328,7 +1330,7 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 
 例：京东转链开关关闭（原因 maintenance）→ 接口返回 50301、data.reason=maintenance → Toast「京东维护中，请稍后再试」，卡片按钮变灰显示「稍后再试」。拼多多因备案互斥或权限未批保持关闭（原因 not_launched）→ 50301、data.reason=not_launched → 不弹 Toast，卡片按钮置灰显示「拼多多返利即将开放」。trace_id 以 …c3d4e5 结尾 → 显示「（c3d4e5）」；trace_id=abc → 显示「（abc）」。30416 且 data.amount_fen=500 →「账户有待扣回金额 ¥5，抵扣回正后才能注销」。30303 reason=below_min、rules 返回最低 100 分 →「单笔最低提现 ¥1」；rules 未返回该值 →「提现金额低于单笔最低金额」。
 
-- 50301 的 data.reason（新增，默认处理，代理自定：00 §9，BR-TEXT-14 决策人为代理可自定）：maintenance = 维护或熔断（运营临时关闭、转链熔断）；not_launched = 该平台权限未批、验证未通过或备案互斥等尚未放量的关闭。服务端按配置 convert.off_reason.&lt;platform> ∈ {maintenance, not_launched}（新增，默认 maintenance）填写，熔断触发的关闭一律 maintenance；50301 仍只用于该平台转链暂停（convert.enabled.&lt;platform> 关闭，或转链依赖的站长授权失效，BR-ID-24；含义见 13 §13.11，BR-PRICE-13）。需同步：13 §13.11 与 规划/04 §7 的 50301 行加 data.reason，04 §10.2 加 convert.off_reason.&lt;platform>，10 AC-S1-28-PDD 断言 reason=not_launched 与「即将开放」文案（AC-S1-15 保持 maintenance）。
+- 50301 的 data.reason（新增，默认处理，代理自定：00 §9，BR-TEXT-14 决策人为代理可自定）：maintenance = 维护或熔断（运营临时关闭、转链熔断）；not_launched = 该平台权限未批、验证未通过或备案互斥等尚未放量的关闭。服务端按配置 convert.off_reason.&lt;platform> ∈ {maintenance, not_launched}（新增，未配置时按 not_launched，与 04 §10 features.platform_status 同源；2026-11-09 编排裁定 D10-1145）填写，熔断触发的关闭一律 maintenance；50301 仍只用于该平台转链暂停（convert.enabled.&lt;platform> 关闭，或转链依赖的站长授权失效，BR-ID-24；含义见 13 §13.11，BR-PRICE-13）。需同步：13 §13.11 与 规划/04 §7 的 50301 行加 data.reason，04 §10.2 加 convert.off_reason.&lt;platform>，10 AC-S1-28-PDD 断言 reason=not_launched 与「即将开放」文案（AC-S1-15 保持 maintenance）。
 - 文案来源一律为字典 error.&lt;code> / error.&lt;code>.&lt;reason>（BR-TEXT-12）；13 §13.11「客户端动作」列中「显示服务端 msg」的码，文案同样取本表 error.&lt;code>，需同步把该列改为「取 error.&lt;code>」。服务端返回的 msg 由同一份 contracts/texts.default.json 生成，与包内默认一致，只在客户端没有该键时显示。
 - 规则正文中已写的提示句（BR-ID-17 的 30104、30153，BR-PRICE-13 的 50303 按钮，BR-PROD-05 的 30143 等）以本表为文案唯一维护处，措辞不一致时以本表为准，来源条目只保留判定与动作。
 
