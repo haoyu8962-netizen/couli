@@ -195,7 +195,7 @@ P1 原为 156 项，按 D10-664 ③ 从 CT-22-trend 拆出 CT-22-mode 后为 157
 | DSX-127 | iOS 解除整 App 浅色锁：全部页面深色扫描通过后去锁（DS-02-iOS ④ 拆出） | iOS（协同 设计） | P0 | DS-02-iOS-1、APP-17-ios-apple、LINT-STYLE-ios | 全部页面深色快照入库、对比度扫描 0 失败后去掉整 App 浅色锁 | DS-02 |
 | DS-02-iOS-2 | DS-02-iOS（二）：补基础交互组件和目录页（FilterChip、输入框、勾选、开关等） | iOS | P0 | DS-02-iOS-1 | DesignSystem 公开 FilterChip、输入框、勾选、开关等基础交互组件，目录页有浅 / 深 / 200% | DS-02 |
 | DS-02-iOS-3 | DS-02-iOS（三）：导航栏和半屏、弹窗改用系统容器，补登录、分享和业务组件 | iOS | P0 | DS-02-iOS-2、COMP-SPEC-2 | 隐藏系统导航栏只剩白名单，半屏与弹窗用系统容器，登录、分享与业务组件补齐 | DS-02 |
-| LINT-STYLE-ios | LINT-STYLE（iOS）：SwiftLint 禁写死样式与系统控件直用，改正 4 处用透明度代替状态色 | iOS | P0 | DS-02-iOS-1 | CI 带基线跑 swiftlint --strict，写死样式与系统控件直用的反例失败，4 处透明度代替状态色改正 | — |
+| LINT-STYLE-ios | LINT-STYLE（iOS）：SwiftLint 禁写死样式与禁自绘系统控件，改正 4 处用透明度代替状态色 | iOS | P0 | DS-02-iOS-1 | CI 带基线跑 swiftlint --strict，写死样式与自绘系统控件的反例失败，存量进基线只减不增，4 处透明度代替状态色改正 | — |
 | FU-DS-ios | FU-DS（iOS 组件库）：ErrorState、EmptyState、NoticeBar、Toast、Skeleton 按状态目录统一 | iOS | P0 | UI-STATES、COMP-SPEC-2、DSX-01、DS-02-iOS-3 | iOS 组件库公开 ErrorState(kind:) 与 NoticeBar(tone:)，旧的 RetryBanner / NoticeBox 不再公开 | — |
 | DSX-120 | iOS 令牌锁升 v0.6.0、锁定组件规范、生成器输出新类别 | iOS（协同 设计） | P1 | DS-02-iOS-1、DSX-02、DSX-03、DSX-04、COMP-SPEC | contract.lock 的 design_tokens 指向 v0.6.0 发布提交并锁定组件规范版本，生成物含新类别、逐值比对通过 | — |
 | DSX-140 | iOS CI 接入令牌与契约落后检查，改锁共享客户端向量 | iOS | P1 | TOKENS-LAG、DSX-42、DS-02-iOS-1 | iOS CI 跑 TOKENS-LAG 检查，共享客户端向量的锁与分发清单 sha256 一致 | — |
@@ -207,7 +207,7 @@ P1 原为 156 项，按 D10-664 ③ 从 CT-22-trend 拆出 CT-22-mode 后为 157
 | DSX-57 | iOS 我的 / 设置页迁移到组件库 | iOS | P1 | DS-02-iOS-3、FU-DS-LINE-HEIGHT-ios | 我的 / 设置页私有件（MeHeroCard 等）grep 为 0，改用组件库 | — |
 | DSX-58 | iOS 搜索 / 订单页控件迁移（筛选胶囊、状态胶囊、金额格、订单卡） | iOS | P1 | DS-02-iOS-3、FU-DS-LINE-HEIGHT-ios、W-33、DSX-119 | 搜索 / 订单页私有胶囊与订单卡件 grep 为 0，改用组件库 FilterChip 等 | — |
 | DSX-59 | iOS 首页 / 剪贴板控件迁移（浅底按钮、弹层宽、禁用态） | iOS | P1 | DS-02-iOS-3、FU-DS-LINE-HEIGHT-ios、DSX-119 | 首页 / 剪贴板私有浅底按钮与 plain 按钮样式 grep 为 0 | — |
-| DSX-60 | iOS 守卫：G1 转为失败，新增 G2 启发式规则 | iOS | P1 | DS-02-iOS-3、LINT-STYLE-ios | G1 为 error 级，反例让 CI 失败 | — |
+| DSX-60 | iOS 守卫：只留 G2 启发式规则（原「G1 转为失败」取消，禁自绘系统控件并入 LINT-STYLE-ios，D10-1113 ⑩） | iOS | P1 | DS-02-iOS-3、LINT-STYLE-ios | G2 规则各有正例和反例，迁移任务合并后基线为空 | — |
 | FU-DS-ios-pages | FU-DS（iOS 非资金页）：通用状态键、私有提示条、断网态、补缺失的状态行 | iOS | P1 | FU-DS-ios、DSX-21 | iOS 非资金页草稿状态键 grep 为 0，私有提示条换成组件库 | — |
 | FU-DS-ios-fund | FU-DS（iOS 资金与金额页）：钱包、提现类状态键，「我的」金额缺失不补 0 | iOS | P1 | FU-DS-ios、DSX-01、DSX-21 | iOS 资金页草稿状态键为 0，「我的」金额缺失按 BR-TEXT-10 展示 | — |
 | FU-X-DLG-ios | FU-X-DLG（iOS）：44001 拦截弹窗主次按定稿统一 | iOS | P1 | W-33 | 44001 拦截弹窗四处主次按定稿统一，快照与新画板一致 | — |
@@ -2936,29 +2936,31 @@ LoginView+ThirdParty.swift L155–175 现在自己画了 RoundedRectangle 加 ap
 </details>
 
 <details>
-<summary><b>LINT-STYLE-ios</b> · P0 · LINT-STYLE（iOS）：SwiftLint 禁写死样式与系统控件直用，改正 4 处用透明度代替状态色</summary>
+<summary><b>LINT-STYLE-ios</b> · P0 · LINT-STYLE（iOS）：SwiftLint 禁写死样式与禁自绘系统控件，改正 4 处用透明度代替状态色</summary>
 
 负责线：iOS；依赖：DS-02-iOS-1；承接：LINT-STYLE（D10-643 三端；iOS 份补派）。
+
+**口径调整（2026-11-09，D10-1113 ⑩，依据 iOS 组件冲刺方案第 0 步与 `design/ui-rules/README.md` §5 第 0 步）**：「禁写死样式」保留；「禁系统控件直用」删掉，改为「禁自绘系统控件」（下面 ②，失败级）。FU-IOS-NATIVE-TABBAR 合并后再开工，基线一次生成。下面的编号沿用本单原编号（DSX-127 引用的 ③ 不变）。第 0 步表的 ③ 对应这里的 ②；④ 的 4 处与这里的 ③ 不完全相同，① 这里比第 0 步表宽，两处开单时按代码实况定（编排 2026-11-09 07:41）。
 
 **范围**
 
 D10-643 通知的 iOS 段只列了 ① ②，本单按「三端 LINT-STYLE」补进 iOS 队列，排在 DS-02-iOS-1 之后。
 
-① .swiftlint.yml 加 custom_rules，范围是 Packages/Features 和 App/Sources，排除 Debug 和 Generated。拦截这些写法：
+① 禁写死样式：.swiftlint.yml 加 custom_rules，范围是 Packages/Features 和 App/Sources，排除 Debug 和 Generated；DS 包沿用现有守卫。拦截这些写法：
 
 - Color(red: / UIColor(red: / Color(hex 和十六进制色；
 
 - .font(.system(size:；
 
-- 数字 cornerRadius、.padding(数字、spacing: 数字、.frame(…: 数字、Feature 层「CGFloat = 数字」（白名单 0、1、2 和命中区扩展）；
+- 数字 cornerRadius、阴影常量、.padding(数字、spacing: 数字、.frame(…: 数字、Feature 层「CGFloat = 数字」（白名单 0、1、2 和命中区扩展）；
 
 - 对令牌色调用 .opacity( 作填充或文字色（白名单只留禁用态和插图）、.opacity(… ? 1 : 0.5) 表达禁用态；
 
-- .buttonStyle(.plain)、Feature 里自定义 ButtonStyle 并在按下时改 opacity、把 onTapGesture 当按钮用。
+- .buttonStyle(.plain)、Feature 里自定义 ButtonStyle 并在按下时改 opacity。
 
-用 SwiftLint baseline 以现状（约 128–132 处）建基线，只减不增，新增即失败。
+② 禁自绘系统控件（失败级，取代原 G1 规则）：拦截 navigationBarBackButtonHidden(true)、.toolbar(.hidden, for: .tabBar)、toolbarBackground( 加 .tabBar、UITabBarAppearance / UITabBar.appearance、UIDesignRequiresCompatibility、整卡 .onTapGesture（页面 8 处 / 7 文件 + DS 2 处）。系统控件（Toggle( / TextField( / Picker( / .sheet( 等）可以直接用，不再拦。
 
-② G1 规则（Toggle( / TextField( / SecureField( / TextEditor( / Picker( / .sheet( / .alert( / .confirmationDialog( / .fullScreenCover( / ProgressView()先只警告，由 DSX-60 转为失败。
+①② 的存量按现状生成基线，只减不增（规则 × 文件计数，超出失败、变少也失败，照安卓 LINT-STYLE #7 做法）。
 
 ③ 下面 4 处直接改正，不进基线（DSX-127 去锁前必须已合）：PrivacyCenterScreen.swift:134–136 和 BindPhoneDialogs.swift:69 的 statusWarningText.opacity(0.1) 改 statusWarningBackground（隐私中心提示条现在对比度只有 4.35:1）；ClipboardViews.swift:352 改 statusErrorBackground；WebScreens.swift:190 的 textInverse.opacity(0.8) 改用文字令牌。
 
@@ -2966,7 +2968,7 @@ D10-643 通知的 iOS 段只列了 ① ②，本单按「三端 LINT-STYLE」补
 
 **验收**
 
-① CI 带 baseline 跑 swiftlint --strict；反例（新增 .padding(13)、cornerRadius: 10、.font(.system(size: 13))、.opacity(enabled ? 1 : 0.5)、.buttonStyle(.plain)）会让 CI 失败；② 执行 `git grep -nF -e 'opacity(0.1)' -e 'opacity(0.08)' -e 'textInverse.opacity' -- Packages App` 为 0；隐私中心提示条按令牌计算浅色 5.13:1、深色 7.59:1；③ 基线入库，有检查保证只减不增；④ OrdersScreen+Filters 的 0.6 和 14 处 .buttonStyle(.plain) 在基线内；⑤ 主干通过。
+① CI 带 baseline 跑 swiftlint --strict；反例（新增 .padding(13)、cornerRadius: 10、.font(.system(size: 13))、.opacity(enabled ? 1 : 0.5)、.buttonStyle(.plain)，以及范围 ② 的 6 类写法各一条）会让 CI 失败，直接使用系统控件不报；② 执行 `git grep -nF -e 'opacity(0.1)' -e 'opacity(0.08)' -e 'textInverse.opacity' -- Packages App` 为 0；隐私中心提示条按令牌计算浅色 5.13:1、深色 7.59:1；③ 基线入库，有检查保证只减不增；④ OrdersScreen+Filters 的 0.6 和 14 处 .buttonStyle(.plain) 在基线内；⑤ 主干通过。
 
 </details>
 
@@ -3220,19 +3222,19 @@ HomeTonalButton 换成组件库的 tonal 变体（DSX-119 裁定、FU-DS-LINE-HE
 </details>
 
 <details>
-<summary><b>DSX-60</b> · P1 · iOS 守卫：G1 转为失败，新增 G2 启发式规则</summary>
+<summary><b>DSX-60</b> · P1 · iOS 守卫：只留 G2 启发式规则（「G1 转为失败」取消，禁自绘系统控件并入 LINT-STYLE-ios）</summary>
 
 负责线：iOS；依赖：DS-02-iOS-3、LINT-STYLE-ios。
 
 **范围**
 
-DS-02-iOS（二）（三）合并后，G1（Features 直接调用系统控件）从警告转为失败。新增 G2 规则：拦截页面里用 RoundedRectangle 加 checkmark 拼的勾选框、自绘的开关、把 onTapGesture 当按钮用。以现状为基线；DSX-55 到 DSX-59 合并后基线清零。
+2026-11-09 按 D10-1113 ⑩ 改义：iOS 没有 G1，原「G1（Features 直接调用系统控件）从警告转为失败」取消，系统控件可以直接用（D37）；拦自绘系统控件的规则并入 LINT-STYLE-ios 范围 ②。本单只留 G2 启发式规则，排在 iOS 组件冲刺第 2 步之后：拦截页面里用 RoundedRectangle 加 checkmark 拼的勾选框、自绘的开关、把 onTapGesture 当按钮用（整卡点击已由 LINT-STYLE-ios 范围 ② 拦）、Button 内没有按下态的自定义 ButtonStyle（清单开单时可调）。以现状为基线；DSX-55 到 DSX-59 合并后基线清零。
 
 来源：g2-38。
 
 **验收**
 
-G1 为 error 级，反例让 CI 失败；G2 三条规则各有正例和反例；迁移任务合并后两份基线都为空。
+G2 各条规则各有正例和反例；迁移任务合并后基线为空。
 
 </details>
 
