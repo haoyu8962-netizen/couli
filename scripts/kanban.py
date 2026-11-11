@@ -533,6 +533,10 @@ def parse_tasks(warn):
                 "plan_state": "void" if void else "deferred" if deferred else "active",
                 "stages": [], "src": source(DOC_TASKS, line),
             }
+            if when.startswith("常设"):
+                # 05 CT-12: a standing practice with no deliverable. Nothing to split into the ledger,
+                # so it counts as settled instead of staying a to-do forever.
+                task["doc_state"] = "merged"
             if fix:
                 phase = re.search(r"整改\s*(P\d)", when)
                 task["when_short"] = f"整改 {phase.group(1)}" if phase else task["when_short"]
