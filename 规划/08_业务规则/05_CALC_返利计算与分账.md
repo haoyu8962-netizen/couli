@@ -28,7 +28,7 @@
 
 2026-11-09 BR-CALC-10「生成不了」补两种（编排裁定 D10-1105、D10-1117，D10-1093 定义的补充，负责人可推翻；docs/changes/20261109-裁定回写批次.md §1）：付款时刻取不到（paid_at_unknown）、淘宝推广位场景取不到的，与选不出规则版本一样不恢复，差错单保持打开。取值不变。
 
-2026-11-11 补贴变化生成新版本（编排裁定 D10-1257、D10-1258，按负责人授权由 Jev 判断，负责人可推翻；`docs/changes/20261111-补贴变化生成新版本.md`，00 §8 第 ② 类）：BR-CALC-15 的版本触发条件加「补贴类佣金单独变化」；BR-CALC-27 细则加「仅补贴变化的版本」、合计表加补贴列、四段金额取写入版本时的补贴；BR-CALC-23 细则加指针（补差候选按结算记录序号与差额判重，规则在 BR-FUND-09 细则 ⑤）；BR-CALC-22 细则补试算样本不因此失效。不改任何一方的份额与分录。
+2026-11-11 补贴变化生成新版本（编排裁定 D10-1257、D10-1258，按负责人授权由 Jev 判断，负责人可推翻；`docs/changes/20261111-补贴变化生成新版本.md`，00 §8 第 ② 类）：BR-CALC-15 的版本触发条件加「补贴类佣金单独变化」；BR-CALC-27 细则加「仅补贴变化的版本」、合计表加补贴列、四段金额取写入版本时的补贴；BR-CALC-23 细则加指针（换版本后差额没变的补差候选不动，规则在 BR-FUND-09 细则 ⑤；同日 D10-1261 把范围收回到「换版本」这一种情形）；BR-CALC-22 细则补试算样本不因此失效。不改任何一方的份额与分录。
 
 **订单状态写法**：本主题按 BR-FUND-01 的双状态（`platform_status` + `rebate_status`）与迁移编号（P1–P15、R1–R14；P11–P15 为 2026-10-03 资金规则对齐补入）书写（按 C-01 默认处理，已由负责人确认 2026-09-30）。与 规划/04 单一 order_status 的对应：O1→P1；O2→P2 / R2；O3→P3 + R4；O4→P6 + R6（入账前整单失效，rebate_status=VOID）；O5→R7；O6→R5（SETTLE_BATCH_CREDIT）；O7→P4 且 rebate_status 不变（只写 order_settlements）；O8→P4 + 结算补差（BR-CALC-23）；O9→R8（rebate_status=CLAWED_BACK）；O10→R9（部分退款、部分维权）/ R9b（价保等佣金变化）；O11→R3。单一状态 SETTLED = (platform_status=SETTLED, rebate_status=CREDITED 且补差已处理完)。负责人不采纳双状态时，按 BR-FUND-01 的映射表回退到上列 O 编号。
 
@@ -623,7 +623,7 @@ csv 至少覆盖：B=1234 自购（617/123/494）、B=2000 分享（1000/200/800
 - 例（只有预估变化，决-01 A）：入账 600/120（结算佣金 1200），联盟只把预估佣金改为 1100、结算记录未变 → 不记账、余额不变，生成 1 张差错单「入账后预估佣金变化」，同一预估值重放不重复生成；联盟随后真的出了 1100 的结算记录时再按 (a) 扣。
 - 受益人为 forfeited / banned / frozen 时的处理见 BR-CALC-09。
 - 补差候选表统一用 BR-FUND-09 的 settle_adjust_batches（原写 settle_adjustments，02 settlement 模块用名以资金主题为准）。
-- 补差候选的判重见 BR-FUND-09 细则「正差批准的默认」⑤：按结算记录序号与各受益人的差额，不按 commission_version（2026-11-11，编排裁定 D10-1258；`docs/changes/20261111-补贴变化生成新版本.md`）。版本变了而差额没变时（如 BR-CALC-27 细则「仅补贴变化的版本」），待审候选不动，已驳回的不重新生成。
+- 换了版本后补差候选怎么处理见 BR-FUND-09 细则「正差批准的默认」⑤（2026-11-11，编排裁定 D10-1258、D10-1261；`docs/changes/20261111-补贴变化生成新版本.md`）：各受益人差额没变的（如 BR-CALC-27 细则「仅补贴变化的版本」），待审候选不动，已驳回的不重新生成；差额变了的照原做法作废重建。
 - 与 BR-FUND-01 R9b、BR-FUND-08、BR-FUND-09 的差异：资金主题原把价保列为 R9b「无分录、只由月结补差处理」，且所有补差都经人工批准。按 C-07（拍板第二批 FUND-11 确认），负差（含价保负差）即时记账、人工批准只用于正差（一人可完成，§8 ADD-05）；R9b 已按 C-27 (g) 改为新 B &lt; booked_base_fen 时同事务写负向 SETTLE_ADJUST（sub_type PRICE_PROTECT / PRICE_COMPARE / SETTLE_DIFF），uniq_key 见 BR-FUND-01 R9b（{order_key}:{uid}:{role}:ADJ:{sub_type}:v{commission_version}，平台侧 {order_key}:PLATFORM:ADJ:{sub_type}:v{commission_version}），正差仍进 BR-FUND-09 候选；C-27 (g) 已由拍板第二批 FUND-11 确认。2026-10-03 资金规则对齐决-01 选 A：R9b 改为只存档并出差错单，本段所述 R9b 写负向 SETTLE_ADJUST 与 `ADJ:{sub_type}:v{commission_version}` 键已停用；结算额的下调仍即时记账（R10）。
 - 按 C-01 默认处理，已由负责人确认 2026-09-30；C-07 已由拍板第二批 FUND-11 确认。
 - 月结口径（拍板第二批 FUND-01）：首次入账即按联盟结算额（BR-CALC-14），(a) 只在入账后联盟结算额再变化时出现，正差候选比逐单入账时少。
@@ -696,7 +696,7 @@ csv 至少覆盖：B=1234 自购（617/123/494）、B=2000 分享（1000/200/800
 | base_fen | B（BR-CALC-02） | 同上 |
 | platform_est_profit_fen | n_total_fen − Σ该版本用户份额 − tlj_redpacket_fen；可为负 | 同上 |
 
-- 存储：`commission_split_totals(order_id, commission_version, n_total_fen, pre_base_deduct_fen, base_fen, user_share_total_fen, tlj_redpacket_fen, platform_est_profit_fen, subsidy_commission_fen, created_at)`，唯一 (order_id, commission_version)，只追加；`subsidy_commission_fen` 记该版本所用的补贴类佣金（2026-11-11 加，`docs/changes/20261111-补贴变化生成新版本.md`）；orders 冗余当前版本值供报表查询。
+- 存储：`commission_split_totals(order_id, commission_version, n_total_fen, pre_base_deduct_fen, base_fen, user_share_total_fen, tlj_redpacket_fen, platform_est_profit_fen, subsidy_commission_fen, created_at)`，唯一 (order_id, commission_version)，只追加；`subsidy_commission_fen` 记该版本所用的补贴类佣金（2026-11-11 加，`docs/changes/20261111-补贴变化生成新版本.md`；加列前写入的版本行该列为空，读取时按该订单分佣快照里的补贴——本表只追加，旧行不回填）；orders 冗余当前版本值供报表查询。
 - **仅补贴变化的版本**（2026-11-11，编排裁定 D10-1257、D10-1258，按负责人授权由 Jev 判断：两轮 0.75、0.85，另两个方案 0.39 / 0.32 与 0.10；`docs/changes/20261111-补贴变化生成新版本.md`）：订单的补贴类佣金与当前版本记录的补贴不同、而有效联盟佣金 N 不变时，也写一个新版本（BR-CALC-15）。这个版本各受益人的份额、base_fen 与上一版本逐项相同，只有 n_total_fen、pre_base_deduct_fen、platform_est_profit_fen 按新补贴重算；不改 rebate_status，不写任何分录，不发通知，不生成补差候选，也不触发扣回。判定时补贴的空值与 0 视为相同；报文的平台更新时间早于订单当前记录的，不因补贴写新版本（时间相等而内容不同的照常处理，同 BR-FUND-02 细则「乱序与去重」对相等时间的口径）；同一报文重投不写。此后 N 变化写新版本时同样取订单当时的补贴。
 - 例（仅补贴变化）：n_base 800、补贴 200 的 v1 为 ① 1000 ② 200 ③ 800，用户 400+80，④ 520；之后只有补贴变为 350 → v2 为 ① 1150 ② 350 ③ 800，用户仍 400+80，④ 670。
 - 例（普通单）：n_base 1234、补贴 0、reserve_bp 0、5000/1000 → ① 1234 ② 0 ③ 1234，用户 617+123=740，④ 494。
