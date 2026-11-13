@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 这是返利 App「凑狸」（iOS / Android / 鸿蒙三端原生壳 + 共用 H5 + Agent 找货）的**规划与设计仓库**。后端工程已在独立的 `rebate-platform` 仓库开始开发；本仓库包含中文 Markdown 规划、`design/` 品牌素材与静态交互预览，以及 `scripts/sync-brand.py` 品牌生成 / 校验工具、`scripts/kanban.py` 本机规划与任务看板；命令和入口见根目录 `README.md`。
 
-- 仓库是**公开**的（GitHub `zora4523-bot/couli`）。不要放未公开方案、商标申请材料、合同、密钥或真实个人信息。
+- 仓库是**公开**的（GitHub `haoyu8962-netizen/couli`；2026-11-13 起由 `zora4523-bot/couli` 迁来，原账号被 GitHub 停用，此前记录里的 `zora4523-bot` 仓库名与 PR 号是历史编号）。不要放未公开方案、商标申请材料、合同、密钥或真实个人信息。
 - `.gitignore` 排除了花卷云原始资料（`01_开发文档与前端能力 (1).md`、`02_服务端接口明细 (1).md`、`后台功能明细.zip`），它们只留在本地，不要提交。
 - `.git/config` 设置了 `core.hooksPath=.githooks`；已恢复的 `.githooks/pre-commit` 会用 gitleaks 检查暂存区，提交时不得绕过。
 - 提交信息沿用 `docs: ...` 风格（约定式前缀 + 英文摘要）。
