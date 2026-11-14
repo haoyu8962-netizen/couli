@@ -166,6 +166,8 @@
 
 2026-11-14 提现免二次验证（`docs/changes/20261114-提现免二次验证.md`，负责人 2026-11-14 当面决定，编排裁定 D10-1665；本文件只做摘要同步，00 §8 第 ① 类）：BR-TEXT-14 表 A 10001、10004、10005 三行，表 C 写请求结果未知一行与表后「通用状态键」一条，把「提现等四个需要二次验证的操作」改称「四个敏感操作」（BR-ID-10 细则「不适用的动作」），这一组仍含提现申请；表 C「二次验证弹层的本次内容」一行末尾「提现的同类摘要画板另有写法，未在本次登记」改为提现不再二次验证、不再登记。没有为提现单设的二次验证文案键，不新增、不作废任何键；10003 的文案与「二次验证」相关键照旧用于收款账号变更、换手机号与注销。状态不变。
 
+2026-11-14 二次验证短信号码提示（编排裁定 D10-1679，00 §8 第 ① 类：为已定的展示补登文案键，不改任何取值）：表 C 新增 `step_up.sms.sent_to`「验证码将发送至 {masked_phone}」一行。展示「验证码将发往哪个号码」是编排裁定 D10-1566 W-2 定的，`GET /v1/me` 的 masked_phone 由代码仓库 B1-02zzza 下发；句子是代理补全的默认，状态不变。
+
 ### 12.1 规则一览
 
 | 编号 | 规则 | 状态 | 影响面 |
@@ -1283,6 +1285,7 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 | 更换手机号·步骤与说明 phone_change.step1 / .step2 / .current_label / .intro / .old_unavailable / .new_label / .new_hint / .submit_hint（第 3 批，画板 PhoneChange-v2、PhoneChangeNew-v2） | 验证当前手机号｜验证新手机号｜当前手机号｜先验证当前手机号，再验证新手机号。更换后，用手机号登录时请使用新手机号｜原手机号不能用了？联系客服｜新手机号｜新手机号不能是其他凑狸账号正在使用的号码｜提交后，当前手机号会换成新手机号 | 「原手机号不能用了？联系客服」打开客服，旧号不可用只能由客服人工办理（BR-ID-06）；能换成哪些号码只按 BR-ID-06 |
 | 更换手机号·完成与待确认 phone_change.done.title / .done.desc、phone_change.pending.no_repeat / .pending.abandon_note（第 3 批，画板 PhoneChangeDone、PhoneChangePending*-v2） | 手机号已更换｜当前手机号 {phone}。以后用手机号登录时，请使用新手机号｜结果确认前不能再次更换手机号｜如果上一次提交已经处理完，手机号会显示为新手机号；放弃不会把它改回原手机号 | {phone} 为脱敏后的新手机号；待确认卡其余文字仍为 pending_confirm.\*；.abandon_note 显示在放弃二次确认框里 |
 | 二次验证弹层的本次内容 step_up.summary.phone_change / step_up.summary.deletion（第 3 批，画板 PhoneChangeStepUp、DeleteAccountStepUp） | 更换手机号 · 新手机号 {phone}｜申请注销账号 | 二次验证弹层标题（error.10003）下一行；{phone} 脱敏；提现 2026-11-14 起不再二次验证（BR-ID-08），提现的同类摘要（原画板另有写法、未登记）不再登记 |
+| 二次验证·短信发往的号码 step_up.sms.sent_to（2026-11-14，编排裁定 D10-1679；代理补全的默认） | 验证码将发送至 {masked_phone} | 已绑手机的账号在二次验证弹层（收款账号变更、更换手机号、申请注销）里显示，说明验证码发往哪个号码；{masked_phone} 取 `GET /v1/me` 的 masked_phone，脱敏格式按 BR-ID-33 细则（前 3 后 4，如 138****5678），客户端不自行拼号码；masked_phone 为 null（未绑手机，或服务端读不出号码）时不显示本句，未绑手机按 BR-ID-08 走 step_up.oauth.* 或 step_up.no_available_method |
 | 二次验证·第三方重新授权 step_up.oauth.desc / .action（第 3 批，画板 DeleteAccountStepUpOauth） | 这个账号没有绑定手机号，需要用登录时的{provider_name}重新授权一次，确认是你本人操作｜用{provider_name}重新授权 | 未绑手机号的账号申请注销时的二次验证（BR-ID-08）；只列本端支持的方式；失败用表 A 20004 与表 B 20004.identity_mismatch |
 | 二次验证无可用方式提示 step_up.no_available_method（第 3 批，画板 DeleteAccountStates ⑥） | 请先绑定手机号，或在支持该登录方式的设备上操作 | 本端一个都不支持账号绑定的登录方式时显示，不给授权按钮（BR-ID-08 正文的提示句，文案以本行为准） |
 | 注销页·页头与资金区 deletion.top_notice / deletion.funds.title / .desc / .desc_banned / .go_withdraw（第 3 批，画板 DeleteAccount-v2、DeleteAccountStates ②） | 注销完成后无法恢复，请先确认下面的内容｜账户资金｜注销后余额和预估收益都会放弃，建议先提现｜注销后余额和预估收益都会放弃｜去提现 | 资金区金额取钱包汇总（BR-TEXT-01）；从账号受限页进入（封禁时提现不可用）用 .desc_banned、不显示【去提现】；放弃余额的勾选句与条件只按 BR-ID-27 |
