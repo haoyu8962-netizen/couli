@@ -164,6 +164,8 @@
 
 2026-11-13 裁定回写第九批（`docs/changes/20261113-裁定回写第九批.md`；00 §8 第 ① 类，记录性修正与错引用改正，不改任何取值）：上一段第八批说明里「两端确有使用」改为「安卓或鸿蒙的代码里确有引用」、6 句不登记的原因补「或资金术语」；表 C「AI 助手·输入与发送」一行删去末尾指向不存在的键 `clipboard.paste_hint.agent` 的半句；BR-TEXT-21 细则 ESTIMATED 一行把「与 BR-FUND-18 estimated_fen 同口径」改为写明两者的差别（编排裁定 D10-1403 Q1）。状态不变。
 
+2026-11-14 提现免二次验证（`docs/changes/20261114-提现免二次验证.md`，负责人 2026-11-14 当面决定，编排裁定 D10-1665；本文件只做摘要同步，00 §8 第 ① 类）：BR-TEXT-14 表 A 10001、10004、10005 三行，表 C 写请求结果未知一行与表后「通用状态键」一条，把「提现等四个需要二次验证的操作」改称「四个敏感操作」（BR-ID-10 细则「不适用的动作」），这一组仍含提现申请；表 C「二次验证弹层的本次内容」一行末尾「提现的同类摘要画板另有写法，未在本次登记」改为提现不再二次验证、不再登记。没有为提现单设的二次验证文案键，不新增、不作废任何键；10003 的文案与「二次验证」相关键照旧用于收款账号变更、换手机号与注销。状态不变。
+
 ### 12.1 规则一览
 
 | 编号 | 规则 | 状态 | 影响面 |
@@ -865,11 +867,11 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 
 | 码 | 文案（字典默认） | 包内默认（变量缺失时） | 动作 |
 | --- | --- | --- | --- |
-| 10001 | 请先登录 | 同左 | 跳 Login，成功后恢复 pending_action；提现等四个需要二次验证的操作不自动恢复，登录后回到发起页，该次提交结果未知时进入待确认状态（表 C pending_confirm.\*，BR-ID-10 细则） |
+| 10001 | 请先登录 | 同左 | 跳 Login，成功后恢复 pending_action；提现等四个敏感操作（BR-ID-10 细则「不适用的动作」）不自动恢复，登录后回到发起页，该次提交结果未知时进入待确认状态（表 C pending_confirm.\*，BR-ID-10 细则） |
 | 10002 | — | — | 单飞刷新后重放；刷新失败按 10404 |
 | 10003 | 请先完成二次验证 | 同左 | 用户侧弹 StepUpSheet、验证方式按 BR-ID-08（已绑手机号用短信，未绑手机号的注销用第三方重新授权），后台按 data.tier 弹对应档位（动态码或短信，BR-ID-34），拿到 step_up_token 后重放；data.reason=verify_phone_missing 取表 B 子键。文案不写验证方式，用户侧与后台共用（2026-10-06 Codex 评审后改，代理补全的默认，待负责人确认；原文案「为保障资金安全，请先完成短信验证」） |
-| 10004 | 请先阅读并同意相关授权 | 同左 | 按 data.consent_type 弹对应同意组件（组件内文案见 BR-ID-11、BR-ID-12、BR-ID-14；labor_agreement 弹劳务协议签署页，BR-WDR-31）。原请求是提现申请等需要二次验证的操作时（BR-ID-10 细则「不适用的动作」），不论哪种同意类型，同意或签署后回到发起页（提现回到 Withdraw、保留已输入金额），由用户重新点【提交】，不自动重放（BR-WDR-07 细则，2026-10-03 功能对照 G-12）；该次提交结果未知时回到发起页进入待确认状态（表 C pending_confirm.\*，BR-ID-10 细则） |
-| 10005 | 请先绑定手机号 | 同左 | 跳 BindPhone，完成后恢复 pending_action；提现等四个需要二次验证的操作同 10001 |
+| 10004 | 请先阅读并同意相关授权 | 同左 | 按 data.consent_type 弹对应同意组件（组件内文案见 BR-ID-11、BR-ID-12、BR-ID-14；labor_agreement 弹劳务协议签署页，BR-WDR-31）。原请求是提现申请等四个敏感操作时（BR-ID-10 细则「不适用的动作」），不论哪种同意类型，同意或签署后回到发起页（提现回到 Withdraw、保留已输入金额），由用户重新点【提交】，不自动重放（BR-WDR-07 细则，2026-10-03 功能对照 G-12）；该次提交结果未知时回到发起页进入待确认状态（表 C pending_confirm.\*，BR-ID-10 细则） |
+| 10005 | 请先绑定手机号 | 同左 | 跳 BindPhone，完成后恢复 pending_action；提现等四个敏感操作同 10001 |
 | 10006 | 账号已被限制使用 | 同左 | 封禁说明页（原因类别 + 申诉入口，文案见 BR-TEXT-23） |
 | 10007 | 账号注销处理中 | 同左 | data.stage=冷静期时跳注销进度页（可撤回），不弹本提示 |
 | 10008（新增，2026-10-06；13 §13.11 登记） | 账号或密码不正确 | 同左 | 后台登录第一步；不区分账号不存在（代理补全的默认，待负责人确认） |
@@ -1280,7 +1282,7 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 | 首次绑定手机号被安全校验拦下 bind_phone.risk_blocked.desc（第 3 批，画板 BindPhone-v2 说明；画板没有起草正文，本句按 2026-10-05 三处 44001 弹窗的统一结构补全，代理补全的默认；Jev 判定涉账号安全与风控（0.89），登记 06「2026-10-21 App 内高保真定稿回写待确认」第 1 项，负责人确认前按本句实现） | 手机号没有绑定，填写的手机号保留在本页，验证码需要重新获取。如有疑问，可以联系客服申诉，客服核实后会帮你登记。 | 绑定手机号提交得到 44001 时弹窗的说明句（phone_change.risk_blocked.desc 的「当前手机号不变」不适用首次绑定）；发码阶段被拦仍用 login.risk_blocked.desc_send；标题与按钮同 `withdraw.risk_blocked.desc`；申诉按 BR-ID-36 细则「被拦截请求申诉」（换手机号类） |
 | 更换手机号·步骤与说明 phone_change.step1 / .step2 / .current_label / .intro / .old_unavailable / .new_label / .new_hint / .submit_hint（第 3 批，画板 PhoneChange-v2、PhoneChangeNew-v2） | 验证当前手机号｜验证新手机号｜当前手机号｜先验证当前手机号，再验证新手机号。更换后，用手机号登录时请使用新手机号｜原手机号不能用了？联系客服｜新手机号｜新手机号不能是其他凑狸账号正在使用的号码｜提交后，当前手机号会换成新手机号 | 「原手机号不能用了？联系客服」打开客服，旧号不可用只能由客服人工办理（BR-ID-06）；能换成哪些号码只按 BR-ID-06 |
 | 更换手机号·完成与待确认 phone_change.done.title / .done.desc、phone_change.pending.no_repeat / .pending.abandon_note（第 3 批，画板 PhoneChangeDone、PhoneChangePending*-v2） | 手机号已更换｜当前手机号 {phone}。以后用手机号登录时，请使用新手机号｜结果确认前不能再次更换手机号｜如果上一次提交已经处理完，手机号会显示为新手机号；放弃不会把它改回原手机号 | {phone} 为脱敏后的新手机号；待确认卡其余文字仍为 pending_confirm.\*；.abandon_note 显示在放弃二次确认框里 |
-| 二次验证弹层的本次内容 step_up.summary.phone_change / step_up.summary.deletion（第 3 批，画板 PhoneChangeStepUp、DeleteAccountStepUp） | 更换手机号 · 新手机号 {phone}｜申请注销账号 | 二次验证弹层标题（error.10003）下一行；{phone} 脱敏；提现的同类摘要画板另有写法，未在本次登记 |
+| 二次验证弹层的本次内容 step_up.summary.phone_change / step_up.summary.deletion（第 3 批，画板 PhoneChangeStepUp、DeleteAccountStepUp） | 更换手机号 · 新手机号 {phone}｜申请注销账号 | 二次验证弹层标题（error.10003）下一行；{phone} 脱敏；提现 2026-11-14 起不再二次验证（BR-ID-08），提现的同类摘要（原画板另有写法、未登记）不再登记 |
 | 二次验证·第三方重新授权 step_up.oauth.desc / .action（第 3 批，画板 DeleteAccountStepUpOauth） | 这个账号没有绑定手机号，需要用登录时的{provider_name}重新授权一次，确认是你本人操作｜用{provider_name}重新授权 | 未绑手机号的账号申请注销时的二次验证（BR-ID-08）；只列本端支持的方式；失败用表 A 20004 与表 B 20004.identity_mismatch |
 | 二次验证无可用方式提示 step_up.no_available_method（第 3 批，画板 DeleteAccountStates ⑥） | 请先绑定手机号，或在支持该登录方式的设备上操作 | 本端一个都不支持账号绑定的登录方式时显示，不给授权按钮（BR-ID-08 正文的提示句，文案以本行为准） |
 | 注销页·页头与资金区 deletion.top_notice / deletion.funds.title / .desc / .desc_banned / .go_withdraw（第 3 批，画板 DeleteAccount-v2、DeleteAccountStates ②） | 注销完成后无法恢复，请先确认下面的内容｜账户资金｜注销后余额和预估收益都会放弃，建议先提现｜注销后余额和预估收益都会放弃｜去提现 | 资金区金额取钱包汇总（BR-TEXT-01）；从账号受限页进入（封禁时提现不可用）用 .desc_banned、不显示【去提现】；放弃余额的勾选句与条件只按 BR-ID-27 |
@@ -1299,7 +1301,7 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 | 通用断网 net.unavailable / net.unavailable.desc（第 3 批，画板 StateNetworkError；WebPage 规格） | 网络不可用｜请检查网络后重试 | 没有可显示的缓存数据时的整页断网态，配【重试】（state.retry）；有缓存时仍用 net.stale_data；即通用状态的「断网无缓存」，取代三端草稿键 `order_list.network_error`（iOS、安卓）与 `order.network_error`（鸿蒙）（2026-11-06，DSX-01） |
 | 通用状态·加载中 state.loading（2026-11-06，设计标准整改 DSX-01；代理补全的默认） | 加载中 | 首次加载、页面还没有可显示的数据时用 `Skeleton`，骨架不显示文字，本键作骨架区域的读屏名称；按钮内的 loading 与等待外部结果时的转圈（`LoadingProgress`）没有场景键时用本键作可见文字或读屏名称，有场景键的用场景键（`buy.opening`、`withdraw.estimate.calculating` 等）；加载态有时长上限（取值在状态目录 `specs/ui-states.yaml`），到时仍没有结果转下一行的加载失败，不无限转圈；取代三端草稿键 `home.loading`（「正在加载」）与各模块的 `*.loading`；普通 |
 | 通用状态·加载失败 state.load_failed.title / state.load_failed.desc（2026-11-06，设计标准整改 DSX-01；代理补全的默认，标题取定稿画板 StateLoadFailed） | 加载失败｜内容没有加载出来，请重试 | 整页或整块 `ErrorState` 的标题与说明，配主按钮 state.retry；说明句：有错误码时取该码的 error.&lt;code>（带 data.reason 的取表 B 子键，5xxxx 附 trace_id 后 6 位，如画板的「出了点问题，请稍后再试（a1b2c3）」），没有错误码时（拿不到统一外壳的响应、响应解码失败、加载态到了时长上限仍没有结果）用 `.desc`，不借用 error.50001；读请求超时用 state.timeout，断网用 net.unavailable（无缓存）或 net.stale_data（有缓存）；金额缺失需要整块进错误态时也用本组（BR-TEXT-10 细则「金额缺失」）；取代三端草稿键 `wallet.load_failed`、`me.load_failed`、`withdraw.load_failed`（原措辞「加载失败」「资料没有加载出来」「提现信息没有加载出来」不再用）；普通（只说没加载出来，不说金额与提现状态） |
-| 通用状态·超时与结果未知 state.timeout（2026-11-06，设计标准整改 DSX-01；代理补全的默认） | 网络不稳定，请重试 | 读请求超时（规划/03 §4.2：读接口超时并自动重试 1 次后仍超时）且设备没有断网：作 `ErrorState` 的说明句，标题仍为 state.load_failed.title、配 state.retry，有缓存的页面改为显示旧数据并附 net.stale_data；写请求发出后没有拿到带统一外壳的响应（超时或连接中断，结果未知）、又没有场景键时作轻提示，已填内容保留，重试沿用同一幂等键（规划/03 §4.2、BR-ID-10 细则），App 内 H5 的桥调用返回 90003（规划/03 §5.3）同此；有场景键的用场景键：购买 buy.timeout，登录流程 login.network_retry，提现等四个需要二次验证的操作进入待确认 pending_confirm.\*（BR-ID-10 细则「敏感操作的幂等键」）；与 buy.timeout、login.network_retry 同文、分开设键；普通 |
+| 通用状态·超时与结果未知 state.timeout（2026-11-06，设计标准整改 DSX-01；代理补全的默认） | 网络不稳定，请重试 | 读请求超时（规划/03 §4.2：读接口超时并自动重试 1 次后仍超时）且设备没有断网：作 `ErrorState` 的说明句，标题仍为 state.load_failed.title、配 state.retry，有缓存的页面改为显示旧数据并附 net.stale_data；写请求发出后没有拿到带统一外壳的响应（超时或连接中断，结果未知）、又没有场景键时作轻提示，已填内容保留，重试沿用同一幂等键（规划/03 §4.2、BR-ID-10 细则），App 内 H5 的桥调用返回 90003（规划/03 §5.3）同此；有场景键的用场景键：购买 buy.timeout，登录流程 login.network_retry，提现等四个敏感操作进入待确认 pending_confirm.\*（BR-ID-10 细则「敏感操作的幂等键」）；与 buy.timeout、login.network_retry 同文、分开设键；普通 |
 | 通用状态·重试 state.retry（2026-11-06，设计标准整改 DSX-01；代理补全的默认） | 重试 | `ErrorState` 与断网整页态的主按钮、提示条上的重试入口；场景里已有的重试键照旧（external_page.retry、share.retry、cs.open_failed.retry、app_update.retry，同为「重试」）；取代三端各模块草稿里的 `*.retry`；普通 |
 | 通用状态·空态 state.empty.default（2026-11-06，设计标准整改 DSX-01；代理补全的默认） | 暂无内容 | 列表或模块没有数据、又没有自己的空态键时 `EmptyState` 的标题；有场景空态键的照旧（favorites.empty、messages.empty、ledger.empty、claim.records.empty、order_list.empty、price_trend.empty、share_hub.favorites_empty 等）；没有数据不是加载失败，不配【重试】，引导按钮按页面规格；普通 |
 | 通用状态·金额缺失的读屏 state.value_missing.a11y（2026-11-06，设计标准整改 DSX-01；代理补全的默认） | 暂时取不到 | 金额位按 BR-TEXT-10 细则「金额缺失」显示「—」时，读屏在金额标签后读本句（如「可提现余额，暂时取不到」），不读符号；「—」是格式规则、不进字典；资金术语键（BR-TEXT-12 细则，按 ③：出现在余额与返利金额的位置） |
@@ -1378,7 +1380,7 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 - pdd.parse_failed（TRADE-07）：与 30132 / AC-S1-08 统一为「报错 + 用商品名搜索」，京东无权限、拼多多识别失败都不自动列候选卡；原写「按 CAP-PDD-01 用文案标题检索并列出候选卡」作废。
 - 购买按钮文案按 BR-TEXT-12 细则（TRADE-21）；本表各错误码动作中的「仍去购买（无返利）」只用于错误弹窗次按钮。
 - 剪贴板（原 G-20，2026-10-17 作废）：读取时机、门槛、三端方式与降级只按 BR-ID-16；本表只维护 clipboard.prompt（保留不用）、clipboard.invite_prompt 与 clipboard.paste_hint 的文案，用途说明弹层的键在表 D。
-- 通用状态键（2026-11-06，设计标准整改 DSX-01）：状态目录 `specs/ui-states.yaml`（UI-STATES）各状态行的文案键只取本条表 A～C，对应如下——首次加载 `state.loading`（骨架读屏）；加载失败 `state.load_failed.title` + 说明句（有错误码取 error.&lt;code>[.&lt;reason>]，没有错误码取 `state.load_failed.desc`）+ `state.retry`；读请求超时 `state.load_failed.title` + `state.timeout` + `state.retry`；断网无缓存 `net.unavailable` / `net.unavailable.desc` + `state.retry`；有缓存的页面（规划/03 §4.2：订单、钱包）请求失败时显示旧数据并附 `net.stale_data`；写请求结果未知按表 C `state.timeout` 一行（四个需要二次验证的操作走 `pending_confirm.*`，购买 `buy.timeout`，登录流程 `login.network_retry`）；金额缺失按 BR-TEXT-10 细则「金额缺失」与 `state.value_missing.a11y`；空态 `state.empty.default` 或场景空态键；页面维护 `web_page.maintenance`，平台维护 error.50301 及表 B 子键；强更 error.10405（`ForceUpdate`）。`contracts/texts.default.json` 收录的 state.\* 键与取值须与表 C 一致；三端各模块的 `*.load_failed`、`*.network_error`、`*.loading`、`*.retry` 草稿键随 FU-DS 删去，改取上述键，不再自拟。
+- 通用状态键（2026-11-06，设计标准整改 DSX-01）：状态目录 `specs/ui-states.yaml`（UI-STATES）各状态行的文案键只取本条表 A～C，对应如下——首次加载 `state.loading`（骨架读屏）；加载失败 `state.load_failed.title` + 说明句（有错误码取 error.&lt;code>[.&lt;reason>]，没有错误码取 `state.load_failed.desc`）+ `state.retry`；读请求超时 `state.load_failed.title` + `state.timeout` + `state.retry`；断网无缓存 `net.unavailable` / `net.unavailable.desc` + `state.retry`；有缓存的页面（规划/03 §4.2：订单、钱包）请求失败时显示旧数据并附 `net.stale_data`；写请求结果未知按表 C `state.timeout` 一行（四个敏感操作走 `pending_confirm.*`，购买 `buy.timeout`，登录流程 `login.network_retry`）；金额缺失按 BR-TEXT-10 细则「金额缺失」与 `state.value_missing.a11y`；空态 `state.empty.default` 或场景空态键；页面维护 `web_page.maintenance`，平台维护 error.50301 及表 B 子键；强更 error.10405（`ForceUpdate`）。`contracts/texts.default.json` 收录的 state.\* 键与取值须与表 C 一致；三端各模块的 `*.load_failed`、`*.network_error`、`*.loading`、`*.retry` 草稿键随 FU-DS 删去，改取上述键，不再自拟。
 
 2026-10-03 功能对照补缺第 1 批新增（代理按 13 §13.11 的分配规则取号，已同步 13 §13.11 与 规划/04 §7）：20004「第三方授权凭证无效」、50305「第三方登录服务暂不可用」，子键 20004.identity_mismatch、30104.credential_invalid；表 C 新增的文案为代理起草的默认措辞，可在字典中改，不改用途。
 
