@@ -1,8 +1,8 @@
 # 后台 · 商品池 · 线框说明（v2026-11-15，待定稿）
 
 > 状态：待负责人看稿，不是开发规格；定稿后另写 design/specs/。契约基线：rebate-platform origin/main a0d03c585（2026-11-14）。画板在本机运行目录与设计画布，不入库。
-> 对抗评审：2026-11-15 由全新的只读评审做了两轮，第 1 轮不通过、修改后第 2 轮通过；只剩读屏属性类问题，记在文末「转开发验收」。画板当时共 62 张（补标签后 69 张），放在管理后台设计画布的「后台第 2 批三页（待定稿）」一页。
-> 2026-11-15 补标签（契约形状取自契约线定稿，未落地，落地后复核）：负责人当天定「标签本期要做」（`docs/changes/20261115-商品池标签本期做.md`，编排裁定 D10-1758、D10-1761、D10-1764）。新画 7 张、改过 45 张，共 69 张；池列表与新建 / 编辑池的 17 张不动。见 §8.6。标签这部分另做了两轮只读评审，第 2 轮通过。
+> 对抗评审：2026-11-15 由全新的只读评审做了两轮，第 1 轮不通过、修改后第 2 轮通过；只剩读屏属性类问题，记在文末「转开发验收」。画板当时共 62 张（补标签后 70 张），放在管理后台设计画布的「后台第 2 批三页（待定稿）」一页。
+> 2026-11-15 补标签（契约形状取自契约线定稿，未落地，落地后复核）：负责人当天定「标签本期要做」（`docs/changes/20261115-商品池标签本期做.md`，编排裁定 D10-1758、D10-1761、D10-1764）。新画 8 张、改过 45 张，共 70 张；池列表与新建 / 编辑池的 17 张不动。见 §8.6。标签这部分另做了两轮只读评审，第 2 轮通过。
 
 本页在 10 月 31 日草稿 r2（33 张画板、21 条待定项，负责人未回复）的基础上，按现在的契约重新核对、修正并补齐状态，共 62 张画板（第 1 轮对抗评审后补 1 张）。画板由生成脚本统一出（与旧稿同一外壳），界面上不出现 BR 编号和错误码。
 
@@ -46,7 +46,7 @@
 - 页头：返回链接 + 池名 + 状态标签 +【编辑】+ 主按钮【入库商品】；池 ID（可复制）、创建时间、最近修改（`adminGetProductPool`）。
 - 停用的池另加一条警告：App 读到的是空列表，商品和设置都保留，也可以继续入库（`AdmPoolItemsFilterEmpty` 上可见）。
 - 说明条（信息）：价格与券由系统刷新、不能手改；App 只展示「已上架、在展示时段内、价格在有效期内、有返利」的商品，按排序升序（有效期是 BR-PRICE-11 的配置项 `pool.max_age_sec`，后台读不到当前值，说明条里用 `[待定]` 占位）；联盟返回下架时系统自动下架并写原因；重新上架前先复核。
-- 筛选：「状态」（全部 / 上架 / 下架，`status`，枚举 `AdminPoolItemStatus`）+「标签」输入框（查询参数 `tag`，一次一个，不带 = 不筛）+【查询】【重置】。输入框下一句说明：去掉首尾空格等规范化之后，与条目的某个标签完全相同才算命中，不是模糊搜索（标签形状：按规范化后完全相等匹配「条目的 `tags` 含这个值」）。带了标签筛选时，表格上方显示「已应用 · 当前结果对应：状态 … · 标签「…」· 共 N 条」条件栏（写法同风控申诉列表，`AdmPoolItemsTagFilter`）；没有命中显示「没有带这个标签的商品」+【重置】（`AdmPoolItemsTagFilterEmpty`）。
+- 筛选：「状态」（全部 / 上架 / 下架，`status`，枚举 `AdminPoolItemStatus`）+「标签」输入框（查询参数 `tag`，一次一个，不带 = 不筛）+【查询】【重置】。输入框下一句说明：去掉首尾空格等规范化之后，与条目的某个标签完全相同才算命中，不是模糊搜索（标签形状：按规范化后完全相等匹配「条目的 `tags` 含这个值」）。带了标签筛选时，表格上方显示「已应用 · 当前结果对应：状态 … · 标签「…」· 共 N 条」条件栏（写法同风控申诉列表，`AdmPoolItemsTagFilter`）；没有命中显示「没有带这个标签的商品」+【重置】（`AdmPoolItemsTagFilterEmpty`）。`tag` 的校验与写入同一套规范化（D10-1765）：规范化后超过 16 个字、含控制字符、或为空（例如只填了空格）都会被拒绝（20001 `data.fields=[tag]`），既不当成「无结果」也不当成「不筛」——输入框标红、下方提示句，列表与「已应用」条件栏保持上一次的结果（`AdmPoolItemsTagFilterInvalid`）；前端可先拦，服务端兜底。只有完全不带 `tag` 才是不筛：输入框清空后点【查询】时前端不带 `tag`，与「只填空格」区分开。
 - 表格（`adminListPoolItems`，`sort` 升序再按 `product_key`）：
   - 商品：图（`image`，占位块）、标题（`title`，两行截断）、平台文字标签（`platform`，沿用后台各页的文字标签画法）、商品 ID（`product_key`）；
   - 券后价：`final_price_fen`（后台金额格式 ¥1,234.56）；副行「券前 ¥{price_fen} · 券 ¥{coupon_fen}」，`coupon_fen = 0` 时写「无券」；
@@ -93,7 +93,7 @@
 | 新建池 | `adminCreateProductPool` POST `/admin/v1/product-pools` | `content.pool` | 无 | 关窗，提示「已创建「{名称}」」，新行置顶高亮（`AdmPoolCreateOk`） | 20001 `[name]` → `AdmPoolCreateInvalid`；20001 `[pool_id]` 不应出现；20902 只在重试时出现 → 读回（§4.8） |
 | 读取一个池 | `adminGetProductPool` GET `/admin/v1/product-pools/{pool_id}` | `content.pool` | 无 | — | 30701 → `AdmPoolNotFound` |
 | 改名 / 启停 | `adminUpdateProductPool` PATCH `/admin/v1/product-pools/{pool_id}` | `content.pool` | 无 | 关窗，「已保存」，该行刷新高亮（`AdmPoolEditOk`） | 20001 `[name]` → `AdmPoolEditInvalid`；`[body]` 由按钮置灰规避；20902 → `AdmPoolEditConflict`；30701 → 关窗 + 「内容不存在或已下线」 |
-| 池内商品 | `adminListPoolItems` GET `/admin/v1/product-pools/{pool_id}/items` | `content.pool` | 无 | — | 30701 → `AdmPoolNotFound`；读取出错 `AdmPoolItemsError`；查询参数 `tag`（标签形状）：命中 `AdmPoolItemsTagFilter`，无结果 `AdmPoolItemsTagFilterEmpty`；`tag` 超长或非法时服务端回什么标签形状没写（§7 P-28） |
+| 池内商品 | `adminListPoolItems` GET `/admin/v1/product-pools/{pool_id}/items` | `content.pool` | 无 | — | 30701 → `AdmPoolNotFound`；读取出错 `AdmPoolItemsError`；查询参数 `tag`（标签形状）：命中 `AdmPoolItemsTagFilter`，无结果 `AdmPoolItemsTagFilterEmpty`；20001 `[tag]`（规范化后超长、含控制字符或为空，D10-1765）→ `AdmPoolItemsTagFilterInvalid`，列表保持上一次的结果 |
 | 选品搜索 | `adminSearchPoolCandidates` GET `/admin/v1/product-pools/candidates` | `content.pool` | 无 | — | 20001 `[cursor]` → 「搜索结果已失效，请重新搜索」并回第 1 页；30131 → 结果区「暂不支持这个链接或平台」；50304 → `AdmPoolImportSearchError`；`search_disabled` → 表 B 子键句、不给【重试】 |
 | 入库 | `adminAddPoolItem` POST `/admin/v1/product-pools/{pool_id}/items` | `content.pool` | 无 | 新商品：抽屉顶「已入库：{标题}，已上架」（`AdmPoolImportOk`）；已在池里：`AdmPoolImportOverwriteOk` / `AdmPoolImportOverwriteResult` | 请求体可带 `tags`（可选；新商品缺省为 []，已在池里的不带 = 保留）。20001 `[link_text]` → `AdmPoolImportInvalid`；`[end_at]` 前端先校验；20001 `[tags]` → 标签框标红，同 `AdmPoolItemEditTagsRejected`；30131 → `AdmPoolImportUnsupported`；30132 → `AdmPoolImportToken`；30141 → `AdmPoolImportOffShelf`；30143 → 选品行内（`AdmPoolImportMore`）；30147 → `AdmPoolImportBlocked`；30701 → 抽屉顶错误条；50401 → `AdmPoolImportRetry` |
 | 改池内商品 | `adminUpdatePoolItem` PATCH `/admin/v1/product-pools/{pool_id}/items/{product_key}` | `content.pool` | 无 | 编辑：「已保存」（`AdmPoolItemEditOk`）；上架：`AdmPoolItemOnlineOk` / `AdmPoolItemOnlineFailed`；下架：「已下架」（`AdmPoolItemOfflineOk`） | 请求体可带 `tags`（不带 = 不改，`[]` = 清空，带了 = 整体替换）。20001 `[end_at]` → `AdmPoolItemEditInvalid`；20001 `[tags]` → `AdmPoolItemEditTagsRejected`；30147 → `AdmPoolItemOnlineBlocked`；30701 → 「内容不存在或已下线」+ 列表重读；50401 → `AdmPoolItemOnlineRetry` |
@@ -139,7 +139,7 @@
 | 入库 / 编辑商品 | `end_at` | 前端先校验「结束时间要晚于开始时间」，不发请求、不出顶部错误条（`AdmPoolItemEditInvalid`）；服务端兜底返回时同样标红，另加顶部「填写内容有误，请检查」 |
 | 入库 | `sort`、`body`、`[link_text, item_ref, body]` | 前端保证两种来源二选一、排序为非负整数，正常不出现；出现时对应字段标红 + 顶部错误条 |
 | 编辑商品 / 入库 | `tags` | 前端先拦：单个超过 16 个字（字段下「每个标签最多 16 个字……」，`AdmPoolItemEditTagsInvalid`）、已满 10 个（「最多 10 个标签，已经满了……」，【添加】置灰，`AdmPoolItemEditTagsInvalidFull`）、重复（提示「已有「…」这个标签，没有重复添加」，不标红，`AdmPoolItemEditTagsInvalidDup`）。服务端拒绝（规范化后超限或含控制字符，`data.fields=[tags]`）：顶部「填写内容有误，请检查」+ 标签框标红 + 字段下「标签里有不能保存的内容（例如看不见的控制字符）……」，抽屉保持打开、内容保留，可改后再保存（`AdmPoolItemEditTagsRejected`）。前端的判断以服务端规范化为准（§7 P-30） |
-| 池内列表 | `tag`（筛选参数） | 前端先按 16 个字限制输入；服务端对超长或非法值回什么，标签形状没写（§7 P-28） |
+| 池内列表 | `tag`（筛选参数） | 规范化后超过 16 个字、含控制字符或为空（只填了空格）→ 20001 `data.fields=[tag]`（D10-1765）：筛选输入框标红 + 下方提示句，列表与「已应用」条件栏保持上一次的结果，不清空、不当成无结果（`AdmPoolItemsTagFilterInvalid`）。前端可先按同样的规范化拦下，服务端兜底。输入框清空 = 不带 `tag` = 不筛，不算校验未通过 |
 | 选品搜索 | `q`、`platform` | 前端先校验，不出现 |
 | 选品搜索 | `cursor` | 「搜索结果已失效，请重新搜索」，清空结果回到第 1 页 |
 | 两个列表 | `page_size` | 不应出现（只给四档） |
@@ -220,6 +220,7 @@
 | 入库设置标签提示 | 可不填。不填则不改已有标签（新入库的商品没有标签）；填了会整体替换原有标签。 | 标签形状（D10-1761、D10-1764，落地后改为 openapi.yaml 的指针）（新建缺省 []、重复入库不带 = 保留、带了 = 整体替换）；措辞草拟 |
 | 覆盖确认里的标签 | 池里现在：{原有标签} / 这次提交：没填，保留原有标签（填了时「整体替换为：…」）/ 这次填了标签的话，会整体替换这件商品原来的标签；不填则保留。 | 标签形状（D10-1761、D10-1764，落地后改为 openapi.yaml 的指针）最后一条；措辞草拟 |
 | 带标签入库成功 | 已入库：{标题}，已上架，标签「…」已保存。可以继续入库：标签已清空，排序和展示时段照旧保留。 | 标签形状最后一条（D10-1764，落地后改为 openapi.yaml 的指针）；措辞草拟 |
+| 标签筛选未通过 | 请输入要查的标签；只有空格不算。要看全部商品，清空输入框再点【查询】 | 规则部分（空串不等于不筛、会被拒绝；只有不带 `tag` 才是不筛）：标签形状 D10-1765（落地后改为 openapi.yaml 的指针）；措辞草拟 |
 | 标签筛选说明 | 标签一次查一个：去掉首尾空格等规范化之后，与条目的某个标签完全相同才算命中，不是模糊搜索。 | 标签形状（D10-1761、D10-1764，落地后改为 openapi.yaml 的指针）（查询参数 `tag`，规范化后完全相等匹配）；措辞草拟 |
 | 标签筛选无结果 | 没有带这个标签的商品 / 要与条目的某个标签完全相同才算命中。换一个标签，或点【重置】看这个池的全部商品。 | 同上；措辞草拟 |
 | 标签前端拦截句 | 每个标签最多 16 个字，这个有 17 个；改短后再添加 / 最多 10 个标签，已经满了；要加新的，请先删掉一个 / 已有「{标签}」这个标签，没有重复添加 | 标签形状（D10-1761、D10-1764，落地后改为 openapi.yaml 的指针）（16 个字、10 个、去重）；措辞草拟 |
@@ -311,6 +312,7 @@
 | --- | --- | --- | --- |
 | AdmPoolItemsTagFilter | 后台 · 商品池 · 池内商品 · 按标签筛选 | 标签「家清」，已应用条件栏，2 条 | 新画 |
 | AdmPoolItemsTagFilterEmpty | 后台 · 商品池 · 池内商品 · 按标签筛选无结果 | 标签「零食」，0 条 | 新画 |
+| AdmPoolItemsTagFilterInvalid | 后台 · 商品池 · 池内商品 · 标签筛选未通过 | 只填空格点【查询】，20001 `[tag]`；列表与条件栏仍是「家清」的结果 | 新画（D10-1765 后补） |
 | AdmPoolItemEditTags | 后台 · 商品池 · 编辑商品 · 加标签 | 已有 3 个，输入框里有「耳机配件」 | 新画 |
 | AdmPoolItemEditTagsInvalid | 后台 · 商品池 · 编辑商品 · 标签太长 | 输入 17 个字，前端拦下 | 新画 |
 | AdmPoolItemEditTagsInvalidFull | 后台 · 商品池 · 编辑商品 · 标签已满 | 已满 10 个，【添加】置灰 | 新画 |
@@ -351,7 +353,7 @@
 | P-24 | `adminUpdatePoolItem` 没有幂等键也没有版本核对：原样重发按「设为目标值」的天然幂等画，契约没有明说；同理两个人同时改同一件商品时后提交的覆盖先提交的，页面不会报冲突 | 照画（`AdmPoolItemEditUnknown`、`AdmPoolItemOfflineUnknown`） | 契约线确认 | 转契约线补（不问负责人）：`adminUpdatePoolItem` 写明「原样重发安全」（设为目标值的幂等语义），并评估是否加版本核对（现在两人同时改后提交的覆盖先提交的、不报冲突）。 |
 | P-25 | 30147 的文案：规划 08 的码表与 BR-TEXT-14 表 A 都还没有登记 30147，字典 `texts.default.json` 也没有 `error.30147`；画板用契约 error-codes.yaml 里的含义句 | 「商品所在类目已被禁售，不能加入商品池」 | 负责人（文案）/ 契约线（补键） | 转规划补（不问负责人）：先在 08 的码表与 BR-TEXT-14 表 A 登记 30147，再由契约线补 `error.30147` 文案键（画板用句：「商品所在类目已被禁售，不能加入商品池」）。 |
 | P-26 | 30147 后运营去哪里调整禁售类目名单：error-codes.yaml 的动作提到「在禁售类目名单里调整」，但契约没有维护名单的后台操作 | `AdmPoolItemOnlineBlocked` 上为 [待定] 占位，不画入口 | 负责人 | 转契约线补（不问负责人）：禁售类目名单（表 `category_blocklist`）由谁、在哪里维护：契约没有后台维护操作，error-codes.yaml 的处理动作却让运营「在禁售类目名单里调整」。补维护入口或改掉这句处理动作（要不要做维护页由规划定）。 |
-| P-28 | 池内列表的 `tag` 筛选参数超长（超过 16 个字）或含控制字符时，服务端回什么，标签形状没写 | 前端先按 16 个字限制输入；`AdmPoolCodes` 该行为 [待定] | 契约线 | 转契约线补（不问负责人）：写明 `tag` 参数超长或含控制字符时的回应（Jev 0.90） |
+| P-28 | 契约已定（D10-1765）：列表筛选参数 `tag` 与写入同一套规范化；规范化后超过 16 个字、含控制字符或为空串 → 20001 `data.fields=[tag]`，不当成无结果、也不当成不筛；只有完全不带 `tag` 才是不筛，已按此画 | `AdmPoolItemsTagFilterInvalid`；`AdmPoolCodes` 该行已换成确定写法 | 契约线（已定） | 已定，从待定划掉 |
 | P-29 | 标签列的显示规则：每行最多 2 个胶囊、其余折成「+N」、长标签省略号截断、完整列表放 `title` 与读屏文字 | 照此画 | 负责人（看稿） | 已按默认处理（Jev 0.94，待负责人看稿时可推翻） |
 | P-30 | 前端先拦（超长、满 10 个、重复）用的规范化须与服务端一致（NFKC、空白合并、大小写不折叠）。前端先按同样的规范化检查长度与控制字符，能定位就把那一个胶囊标红；服务端 20001 `[tags]` 只回 `data.fields=[tags]`、不指明哪一项，只作兜底——兜底时整组标红、不指明哪一个（`AdmPoolItemEditTagsRejected` 画的就是兜底，标题注明「前端没拦住时的服务端兜底」）。不一致时以服务端为准，前端放过的由 20001 `[tags]` 兜底 | 照此画 | 契约线 / 开发 | 转开发验收（Jev 0.93） |
 | P-31 | 首页配置页的「按标签取条目」入口不在本页：首页卡片数据源 `product_pool` 可选 `tags`（命中任一；兜底池 `feed.fallback_pool_id` 不受筛选），入口在首页配置页，本页不画 | 不画 | 首页配置页后续任务 | 不属于本页的决定，首页配置页后续任务处理（Jev 0.91） |
@@ -408,7 +410,8 @@
 4. 返回码一览补入库与编辑的 20001 `[tags]`、列表 `tag` 参数两行。
 5. 首页配置页的标签筛选入口不画（P-31）。三端 App 与 H5 不受影响：下发的页面配置与商品卡都不带标签字段（标签形状、04 §3.2）。
 6. 标签只读评审后（2026-11-15）：连续入库时标签字段清空、排序与时段保留（`AdmPoolImportOk` 改为带标签入库的样例）；筛选说明句改为「去掉首尾空格等规范化之后……」；共用提示句「保存时会」改「提交时会」；服务端拒绝那张注明是兜底；出处补裁定号。
-7. 生成脚本先并入了派工方在成品上打的补丁（过期标签拆成「价格过期」+ 小字、`AdmPoolImportNoMore` 高 1260、返回码一览的 0 条新增提示句），关掉标签时重跑与上一版成品逐字节一致。
+7. 契约线定下 `tag` 筛选参数的校验（D10-1765）后：新画 `AdmPoolItemsTagFilterInvalid`（只填空格点【查询】→ 输入框标红、列表与条件栏保持上一次的结果），`AdmPoolCodes` 的 `[待定]` 换成确定写法，P-28 划掉。其余画板不变，共 70 张。
+8. 生成脚本先并入了派工方在成品上打的补丁（过期标签拆成「价格过期」+ 小字、`AdmPoolImportNoMore` 高 1260、返回码一览的 0 条新增提示句），关掉标签时重跑与上一版成品逐字节一致。
 
 ## 9. 转开发验收（读屏属性，第 1 轮对抗评审记下，稿上不改）
 
