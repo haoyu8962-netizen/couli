@@ -30,7 +30,7 @@
 | --- | --- | --- | --- |
 | 标题行 | Typography.Title + Badge「待审 N」+ Button【导出】【导出记录】 | 待审计数（F-ADM-07） | 导出走异步任务（`export`），记录页见 [admin-ledger.md](admin-ledger.md) §2 |
 | 页签 | Tabs：审核列表 / 打款队列（Badge）/ 结果待确认（Badge）/ 自动到账设置 | 各页签计数 | 切换路由 |
-| 状态页签 | Tabs + Badge：全部 / 待审 / 驳回 / 手动 / 自动 | 按展示状态与 `review_mode` 计数 | 切换即筛选 |
+| 状态页签 | Tabs + Badge：全部 / 待审 / 驳回 / 手动 / 自动 | 按展示状态与 `review_mode` 计数；页签数字是该页签在全部单据下的总数，不叠加地址参数（如 `?status=`）或筛选栏条件（2026-11-20 编排裁定 D10-2184） | 切换即筛选 |
 | 筛选卡 | Form：Select（展示状态、审核方式 `review_mode`、收款方式 `payout_method`）、RangePicker（申请时间）、【重置】【查询】；条件改动未应用时 Alert 列出改了哪些、说明结果仍对应旧条件 | 查询参数 | 点【查询】应用并清空已选；受阻原因筛选见 §7 ③ |
 | 批量栏 | 已选统计（待执行 / 待审核张数、合计实付）+ Button【批量通过】（`withdraw.review`）【批量手动打款】（`payout.manual_entry`）【批量自动打款】（`payout.execute`） | 已选 items | 三个都弹确认对话框，列出将处理与跳过的单；一次二次验证覆盖本批（BR-WDR-10 细则） |
 | 列表 | Table：勾选、提现单号、用户 / 收款（UID + 收款方式）、申请金额、展示状态（第二行放「暂停」「执行受阻」原因）、风险标签、原因 / 执行结果（转人工原因、审核人与时间、批次号、驳回原因码）、申请时间、操作【审核】或【详情】 | items[]：`status`、`review_mode`、`auto_decision.failed_conditions[]`、`risk_flags[]`、`reject_reason_code`、`batch_id` | 行操作进详情；驳回内部备注悬停显示 |

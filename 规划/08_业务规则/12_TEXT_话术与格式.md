@@ -170,6 +170,8 @@
 
 2026-11-19 余额更正站内信与注销页文案（`docs/changes/20261119-余额更正站内信与注销页文案.md`）：① 余额更正站内信属 00 §8 第 ② 类——负责人 2026-11-18 在编排会话里回「要通知」（编排裁定 D10-2091：余额缓存按分录重算纠正后要告知用户），落实方案是编排裁定 D10-2092、D10-2093 ②、D10-2097（细节按 规划/11 §7.1 先问 Jev，负责人可推翻）：BR-TEXT-19 细则新增「站内信 BALANCE_CORRECTED」一段与例 7；BR-TEXT-09 细则「渠道」、BR-TEXT-20 细则「范围」两处只发站内信的编码清单加 BALANCE_CORRECTED；BR-TEXT-12 细则「资金术语键」的通知模板加 BALANCE_CORRECTED；表 C 消息标题一行加「余额更正」；12.1 表 BR-TEXT-19 行的影响面补该模板。② 注销页文案属第 ① 类（编排裁定 D10-2122，文案键登记与用词同步）：BR-TEXT-01 细则登记三个术语通用键 `term.withdrawable`、`term.estimated`、`term.negative`；表 A 30416 两列的「待扣回」改为 BR-TEXT-01 的「待抵扣」（包内默认不带 {amount}，D10-2122「两处都带」按表 A 表头收窄，编排确认），BR-TEXT-14 细则 30416 的渲染例与 BR-TEXT-12 细则资金术语清单里对 error.30416 的说明同步；BR-TEXT-23 DELETION_PROGRESS cancelled_negative 模板及其说明、资金术语清单里的同一说明也按 BR-TEXT-01 改为「待抵扣」（编排 2026-11-19 追加）；BALANCE_CORRECTED 默认正文用 BR-TEXT-01 的用户词「可提现余额」（编排 2026-11-19 追加）；表 C 注销页·须知、注销页·冷静期两行写明天数变量取 `/v1/config` 的 `compliance.deletion.*`（BR-ID-27 细则「天数的下发」），新增注销页标题与勾选句、注销的二次验证标题（文案待定）、读屏通用复选框三行，注销页复用的现有键写在新行里；BR-TEXT-12 细则 key 命名补 `term.<词>`、`a11y.*`，资金术语键清单补登新键。不新增、不作废 BR 条目，各条状态不变。
 
+2026-11-20 账务自检自动更正与差错单分类（`docs/changes/20261120-账务自检自动更正与差错单分类.md`；负责人 2026-11-20 对账本复审题 1 回「B」，编排裁定 D10-2219）：BR-TEXT-19 细则「站内信 BALANCE_CORRECTED」与例 7 里「差错单里按分录重算」的说法改为同时覆盖系统自动更正与人工触发的重算，发送条件、渠道、变量与措辞都不变。同批补登（00 §8 第 ① 类）：BR-TEXT-25 `recon_diff_type` 行加 `blacklist_after_credit`（契约与数据库已有，规划漏登）。各条状态不变。
+
 ### 12.1 规则一览
 
 | 编号 | 规则 | 状态 | 影响面 |
@@ -1556,15 +1558,15 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 
 例 6：财务以 RECON_FIX 调减 120 分（关联子订单）→ 流水「结算核对更正｜-¥1.2」，点击跳转该子订单；站内信「你的余额调减 ¥1.2，原因：结算核对更正。如有疑问，请联系客服。」
 
-站内信 BALANCE_CORRECTED「余额更正」（负责人 2026-11-18 在编排会话里回「要通知」，编排裁定 D10-2091；落实方案为编排裁定 D10-2092、D10-2093 ②、D10-2097，细节按 规划/11 §7.1 先问 Jev，负责人可推翻；`docs/changes/20261119-余额更正站内信与注销页文案.md` §1）：差错单里按分录重算余额缓存（BR-FUND-19 细则「差异以分录为准修正」）使可用余额 available_fen 前后不等时，与写余额行同一事务给该用户写一条站内信，事务回滚则不发；调增、调减都发。
+站内信 BALANCE_CORRECTED「余额更正」（负责人 2026-11-18 在编排会话里回「要通知」，编排裁定 D10-2091；落实方案为编排裁定 D10-2092、D10-2093 ②、D10-2097，细节按 规划/11 §7.1 先问 Jev，负责人可推翻；`docs/changes/20261119-余额更正站内信与注销页文案.md` §1）：余额缓存按分录更正（BR-FUND-19 细则「差异以分录为准修正」：2026-11-20 起由系统在日终校验里自动更正，被护栏拦下时是有权限者人工触发的重算，两种都算；此前写「差错单里按分录重算余额缓存」）使可用余额 available_fen 前后不等时，与写余额行同一事务给该用户写一条站内信，事务回滚则不发；调增、调减都发。
 - 渠道：只发站内信，category=service；不发推送与短信，后台的推送、短信两个开关恒为关（BR-TEXT-20 细则）。
-- 不发：重算被拒绝、前后相同、只有冻结金额 frozen_fen 变化而可用余额不变。users.status 为 deleting（注销处理中，账号已不能登录）或 deleted（已注销）的会员不发，重算照做；仍在注销冷静期内的会员（能登录、只读）照发（D10-2097，依据 BR-FUND-24 ⑧「注销用户不发站内信」的上下文与 BR-ID-27 细则「站内信」一条）。
+- 不发：自动更正被护栏拦下没有执行、人工触发的重算被拒绝、前后相同、只有冻结金额 frozen_fen 变化而可用余额不变。users.status 为 deleting（注销处理中，账号已不能登录）或 deleted（已注销）的会员不发，更正照做；仍在注销冷静期内的会员（能登录、只读）照发（D10-2097，依据 BR-FUND-24 ⑧「注销用户不发站内信」的上下文与 BR-ID-27 细则「站内信」一条）。
 - 余额由正转负、按 BR-WDR-05 驳回在途提现时，每张提现单的驳回通知照旧另发，与本条不合并。
 - 默认标题「余额更正」（`inbox.title.BALANCE_CORRECTED`，BR-TEXT-14 表 C 消息标题一行）；默认正文：「核对账目时发现你的余额显示与流水明细不一致，已按流水明细更正：可提现余额由 {before} 调整为 {after}。如有疑问，请联系客服。」（用户词按 BR-TEXT-01；D10-2092 原句写「可用余额」，编排 2026-11-19 按术语同步改，意思不变）默认正文放服务端渲染器常量、不进 texts（同 BALANCE_ADJUSTED 的现有放法，D10-2093 ②）。
 - 变量只有 {before}、{after}：更正前（锁内读到的）与更正后（写入的）可用余额 available_fen，按 BR-TEXT-10 带符号格式化（负数「-」在「¥」前，如 -¥3.2；正数不加「+」）。余额为负时这样显示与钱包「可提现余额 ¥0、待抵扣 ¥x」的说法不一致，是已知的小不一致，先照此执行，另行再定（`docs/changes/20261119-余额更正站内信与注销页文案.md` §3）。不写差错单号、操作人与内部原因。运营可改标题与正文的措辞，不能改变量；属资金术语（BR-TEXT-12 细则「资金术语键」）。
 - 与 BALANCE_ADJUSTED 是两个编码：重算不写凭证、不出余额流水（BR-FUND-19 细则），不是人工调账；BALANCE_ADJUSTED 仍只在调减时发。
 
-例 7：差错单 E1 按分录重算用户 42 的余额缓存，available 由 5000 改为 4900 → 同一事务写站内信，标题「余额更正」，正文「核对账目时发现你的余额显示与流水明细不一致，已按流水明细更正：可提现余额由 ¥50 调整为 ¥49。如有疑问，请联系客服。」；只有 frozen 由 1000 改为 900、available 不变 → 不发；用户 42 已进入注销处理（deleting）→ 照样重算，不发。
+例 7：日终校验自动按分录更正用户 42 的余额缓存（人工触发的重算相同），available 由 5000 改为 4900 → 同一事务写站内信，标题「余额更正」，正文「核对账目时发现你的余额显示与流水明细不一致，已按流水明细更正：可提现余额由 ¥50 调整为 ¥49。如有疑问，请联系客服。」；只有 frozen 由 1000 改为 900、available 不变 → 不发；用户 42 已进入注销处理（deleting）→ 照样更正，不发。
 
 上级视角的名称、说明与日期粒度只在本条维护（拍板第二批 OPS-18：「邀请分佣入账」+ 说明「邀请好友订单」、日期只到日，更难反推好友下单时间）；BR-INV-17 原写「邀请好友购物分佣」、时间到分钟，已改为引用本条。
 
@@ -1865,7 +1867,7 @@ ORDER_TRACKED 的推送对象、触发、合并与去重只在本条维护（BR-
 | `admin_adjustments.status` | PENDING / APPROVED / REJECTED / CANCELLED | 待批准 / 已生效 / 已驳回 / 已撤回 | — | 红冲是关联原单的另一张调账单，不是状态（BR-FUND-24）；详情页对已被红冲的原单加「已红冲」标记 |
 | `settle_batch.status` | DRAFT / CONFIRMED / EXECUTING / PARTIAL / DONE / CANCELLED | 待确认 / 已确认 / 执行中 / 部分完成 / 已完成 / 已取消 | — | BR-FUND-04 细则「结算批次迁移表」 |
 | `settle_mode` | IMMEDIATE / SCHEDULED | 立即执行 / 定时执行 | 立即 / 定时 | BR-FUND-04 |
-| `recon_diff_type` | union_mismatch / channel_mismatch / ledger_mismatch / platform_restore / month_end_unbalanced / settle_amount_mismatch / settle_missing / appeal_restore / estimate_changed_after_credit / pay_mismatch / pay_anomaly | 联盟对账不一致 / 通道对账不一致 / 账实不符 / 平台恢复 / 月末三项不平 / 月结金额不一致 / 应结未结 / 申诉恢复 / 入账后预估变化 / 收款对账不一致 / 收款异常 | — | 04 §2.5 全集；BR-FUND-22、23、BR-WDR-23、BR-PAY-07 |
+| `recon_diff_type` | union_mismatch / channel_mismatch / ledger_mismatch / platform_restore / month_end_unbalanced / settle_amount_mismatch / settle_missing / appeal_restore / estimate_changed_after_credit / pay_mismatch / pay_anomaly / blacklist_after_credit | 联盟对账不一致 / 通道对账不一致 / 账实不符 / 平台恢复 / 月末三项不平 / 月结金额不一致 / 应结未结 / 申诉恢复 / 入账后预估变化 / 收款对账不一致 / 收款异常 / 已入账订单命中黑名单待复核 | — | 04 §2.5 全集；BR-FUND-22、23、BR-WDR-23、BR-PAY-07、BR-ATTR-26（`blacklist_after_credit` 2026-11-20 补登，中文名取契约 `contracts/enums/fund.yaml` 现有说明） |
 | `recon_diffs.source` | R1 / R2 / R3 / R4 | 联盟对账 / 通道对账 / 内部日终 / 收款对账 | — | — |
 | `recon_diff_status` | open / processing / adjusted / written_off / closed | 待处理 / 处理中 / 已调账 / 已核销 / 已关闭（不处理） | — | BR-FUND-22 |
 | `withdrawals.review_mode` | auto / manual | 自动到账 / 人工审核 | 自动 / 人工 | BR-WDR-30 |
