@@ -16,7 +16,7 @@
 | 第 2 步：新手机号 | PhoneChangeNew-v2.dc.html（0c98cf150783） | step_up_token 取得 | 本地；空输入时按钮置灰；sendSmsCode（purpose=bind） |
 | 第 2 步：验证码 | PhoneChangeNewCode.dc.html（1987f56addb8） | 发码成功 | 输满调 bindPhone（X-Step-Up-Token、Idempotency-Key） |
 | 提交时二次验证 | PhoneChangeStepUp.dc.html（fc17181ebdcf） | bindPhone · 10003（token 过期） | `StepUpSheet` 后沿用原键重发（03 §4.2） |
-| 暂不支持自助更换 | PhoneChangeDisabled.dc.html（5197b3edcb8c） | bindPhone · 30414 | 30414 |
+| 暂不支持自助更换 | PhoneChangeDisabled.dc.html（5197b3edcb8c） | 30414：第 1 步 sendSmsCode（step_up / phone_change）、stepUp（phone_change）或第 2 步 bindPhone 返回（见 §7） | 30414 |
 | 新号被安全校验拦下 | PhoneChangeNewBlocked-v2.dc.html（e60305593c15） | 44001 | 【知道了】为主、【联系客服申诉】为次 |
 | 更换成功 / 放弃时上一次已完成 | PhoneChangeDone.dc.html（3f47cfe39eab）、PhoneChangePendingCompleted.dc.html（691ff3220700） | bindPhone · 200 / 放弃时得知原请求已成功 | 重取 getMe；后者先轻提示 `pending_confirm.already_done` |
 | 上一次提交结果未知 | PhoneChangePendingConfirm-v2.dc.html（c1e7e6c0956e） | 未决键存在（BR-ID-10 细则） | 本地未决键；【确认】用原键重发 bindPhone |
@@ -44,17 +44,18 @@
 
 | operationId | 什么时候调 | 本页会遇到的错误码 |
 | --- | --- | --- |
-| sendSmsCode | 两步各发码 | 20001、44001、44003、42901、10405 |
-| stepUp | 第 1 步输满 | 20001、20002、20003、10405 |
+| sendSmsCode | 两步各发码 | 20001、44001、44003、42901、10405；第 1 步（step_up / phone_change）另有 30414 |
+| stepUp | 第 1 步输满 | 20001、20002、20003、10405、30414 |
 | bindPhone | 第 2 步输满、待确认【确认】 | 10003、20002、20003、20903、30411、30414、44001、10405 |
 | abandonIdempotencyKey | 待确认「放弃」 | 20001、40901、10405 |
 
 ## 6. 稿上没画、实现要做的
 
-原幂等键恢复、请求在途双按钮禁用、终结与非终结结果分流、换账号隔离（BR-ID-10 细则）；验证码错误与按钮禁用原因的读屏顺序；键盘与安全区遮挡。开关：`account.phone_change_enabled`（服务端，关闭时返回 30414，不下发客户端，见 §7）。样例号码只用脱敏写法（138****5678 当前、139****1234 成功、136****4411 被拦，`sample-data.md` §12）。
+原幂等键恢复、请求在途双按钮禁用、终结与非终结结果分流、换账号隔离（BR-ID-10 细则）；验证码错误与按钮禁用原因的读屏顺序；键盘与安全区遮挡。开关：`account.phone_change_enabled`（服务端判定，关闭时返回 30414；`/v1/config` 另有只作展示的客户端副本，见 §7）。样例号码只用脱敏写法（138****5678 当前、139****1234 成功、136****4411 被拦，`sample-data.md` §12）。
 
 ## 7. 待定与不一致
 
-- `account.phone_change_enabled` 不下发客户端，30414 只能在第 2 步提交时得到；flow-map §11.2.1「点手机号行直接提示」做不到，待上游（04 / 契约线：发码或二次验证时返回，或下发开关）。
-- 换手机号遇到 30411「…可退出后用手机号登录」不贴切，建议加子键；BR-ID-06 未写自助换号成功后其他设备是否退出登录，待上游（08）。
+- 换号开关关闭时的 30414（2026-11-20 同步；BR-ID-05、BR-ID-06 细则，04 §6.1，编排裁定 D10-2189）：二次验证发码（`POST /v1/auth/sms-codes` purpose=step_up、action=phone_change）、二次验证（`POST /v1/auth/step-up` action=phone_change）与换号提交（`POST /v1/me/phone`）三处都可能返回，服务端实现任务 B1-20b；本页任一处收到都进「暂不支持自助更换」状态（画板不变）。开关的判定只在服务端；`/v1/config` 的 `features.account.phone_change_enabled` 是只作展示的客户端副本，缺键与为 false 时设置页怎样处理见 BR-ID-06 细则。本规格 2026-10-21 写的「不下发客户端、30414 只能在第 2 步提交时得到」已被 2026-10-22 CT-26e 与本次同步取代。界面行为随 B1-20b 与 APP-13a-2 落地。
+- 自助换号成功后的会话（2026-11-20 同步；BR-ID-06 细则，编排裁定 D10-2192）：该账号其他设备的会话失效，当前设备保留、不需要重新登录；成功页不提示「请重新登录」，【完成】照旧回 `Settings`。其他设备的被动退出按 BR-ID-07，随 B1-20b 与 APP-13a-2 落地。新号等于当前号时 bindPhone 返回 20001（`data.fields=[phone]`，BR-ID-06 细则，编排裁定 D10-2216），画板没有画，提示方式随 APP-13a-2 落地。
+- 换手机号遇到 30411「…可退出后用手机号登录」不贴切，建议加子键，待上游（08）。
 - 跨批：二次验证格子规格（第 2 批 `WithdrawStepUp-v2` 与本页不同）、44001 弹窗按钮主次（第 2 批相反）、待确认卡「提交时间」过去时间写法 BR-TEXT-11 未列，随各批定稿统一，待上游。
