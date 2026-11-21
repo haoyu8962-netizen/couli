@@ -32,6 +32,8 @@
 
 2026-11-12 终态订单的金额版本行（编排裁定 D10-1272，按负责人授权由 Jev 判断 0.90，负责人可推翻；`docs/changes/20261112-终态订单的金额版本行.md`）：BR-CALC-15 按状态分路补上终态一路——订单已是 VOID、CLAWED_BACK 后佣金或补贴再变化，版本照常 +1 并同事务写该版本金额行，不改状态、不记账；BR-CALC-27 一览注明含终态订单。不改任何一方的份额与分录。
 
+2026-11-21 淘宝佣金字段更正（`docs/changes/20261121-联盟佣金字段核对同步.md`；00 §8 第 ① 类，按官方文档与代码主干核对的错引用更正）：BR-CALC-03 细则淘宝行的候选字段由 pub_share_pre_fee / pub_share_fee（含补贴）改为 pub_share_pre_fee_for_commission / pub_share_fee_for_commission 并减对应技术服务费、补贴取 \*_for_sdy；默认值「未验证前按已扣技术服务费开发」改为按文档写法开发。状态仍为待验证，不改金额口径。
+
 **订单状态写法**：本主题按 BR-FUND-01 的双状态（`platform_status` + `rebate_status`）与迁移编号（P1–P15、R1–R14；P11–P15 为 2026-10-03 资金规则对齐补入）书写（按 C-01 默认处理，已由负责人确认 2026-09-30）。与 规划/04 单一 order_status 的对应：O1→P1；O2→P2 / R2；O3→P3 + R4；O4→P6 + R6（入账前整单失效，rebate_status=VOID）；O5→R7；O6→R5（SETTLE_BATCH_CREDIT）；O7→P4 且 rebate_status 不变（只写 order_settlements）；O8→P4 + 结算补差（BR-CALC-23）；O9→R8（rebate_status=CLAWED_BACK）；O10→R9（部分退款、部分维权）/ R9b（价保等佣金变化）；O11→R3。单一状态 SETTLED = (platform_status=SETTLED, rebate_status=CREDITED 且补差已处理完)。负责人不采纳双状态时，按 BR-FUND-01 的映射表回退到上列 O 编号。
 
 ### 5.1 规则一览
@@ -130,7 +132,7 @@ B           = max(0, after_rsv − tlj_deduct_fen)
 #### BR-CALC-03 细则 · 各平台 N 的取数字段
 
 - 状态：待验证
-- 默认值：未验证前按'字段已扣技术服务费'开发，用录制回放测试；credit.enabled.&lt;platform>=off（只展示预估，不入账）；验证结果写入 规划/09_平台能力验证/（对应 CAP 的结论，按 09 README §0.4 回填）
+- 默认值：未验证前按录制回放测试；字段是否已扣技术服务费按联盟文档的写法开发——文档写明含技术服务费的（淘宝，见下表），N 取该字段减去报文中对应的技术服务费金额（正文「报文直接给出服务费金额时」一句）；文档没写的（京东、拼多多），按正文与表下说明处理（2026-11-21 按官方文档与代码主干核对，原写「未验证前按'字段已扣技术服务费'开发」）；credit.enabled.&lt;platform>=off（只展示预估，不入账）；验证结果写入 规划/09_平台能力验证/（对应 CAP 的结论，按 09 README §0.4 回填）
 - 决策人：财务
 - 依赖平台能力：淘宝/京东/拼多多订单接口：推广者预估收入与结算收入字段是否已扣技术服务费、是否有服务费率字段；淘宝专项服务费 2026 现行费率；拼多多佣金字段是否已含账号等级系数与自购折算
 - 取代：无
@@ -141,9 +143,11 @@ B           = max(0, after_rsv − tlj_deduct_fen)
 
 | 平台 | 候选预估字段 | 候选结算字段 | 待验证点 |
 |---|---|---|---|
-| taobao | 付款预估收入（如 pub_share_pre_fee） | 结算预估收入（如 pub_share_fee） | 是否已扣技术服务费（alimama_share_fee 为技术服务费金额，待实测）；专项服务费 2026 现行费率；补贴类收入是否单列（subsidy_fee） |
+| taobao | 付款预估佣金收入 pub_share_pre_fee_for_commission，减预估技术服务费（alimm_share_info_dto.alimm_tech_service_pre_fee） | 结算预估佣金收入 pub_share_fee_for_commission，减结算技术服务费（alimm_share_info_dto.alimm_tech_service_fee）；只在已结算状态写结算佣金（BR-FUND-02） | 文档写明这两个字段含平台技术服务费、发钱时扣除，且不含补贴；补贴类收入单列为 pub_share_pre_fee_for_sdy / pub_share_fee_for_sdy，按 BR-CALC-18 记 subsidy_commission_fen、不进 n_base_fen。待实测：扣减后与联盟后台推广者收入逐单一致；渠道专项服务费（alimm_agent_service_\*）与平台专项服务费（platform_special_service_fee）是否另需扣减；专项服务费 2026 现行费率 |
 | jd | 预估佣金（如 estimateFee） | 实际佣金（如 actualFee）；不作结算佣金，见表下「京东」 | 是否已扣技术服务费 |
 | pdd | 佣金金额（如 promotion_amount） | 同字段结算后值 | 是否已含账号等级系数、自购 75% 折算 |
+
+- 淘宝（2026-11-21 按官方文档与代码主干核对，`docs/changes/20261121-联盟佣金字段核对同步.md`；00 §8 第 ① 类，错引用更正）：上表淘宝行原写候选字段 pub_share_pre_fee / pub_share_fee。官方 `taobao.tbk.order.details.get` 文档写这两个是「佣金收入 + 补贴收入」的合计，直接用会把补贴算进分佣基数、与 BR-CALC-18 冲突；改为 \*_for_commission 两个字段、补贴取 \*_for_sdy。代码主干的淘宝适配器已按此取数并减技术服务费，本次是把规划改成与文档、代码一致，不改金额口径；本条状态仍为「待验证」，逐单核对仍按下文。淘宝订单经大淘客取数，字段与官方同名同义（09 CAP-TB-07、§2.10「订单数据源」）。
 
 - 京东（2026-11-01，编排裁定 D10-529，`docs/changes/20261101-京东结算佣金只由账单导入.md`）：上表京东行的 actualFee 不作结算佣金。京东订单行没有已结算 validCode（09 CAP-JD-07），Adapter 不写 settle_commission_fen，结算额只由联盟结算明细导入写入（BR-FUND-02、BR-FUND-04、BR-FUND-09）；17（已完成）之后 actualFee 只用作预估佣金（est_commission_fen）。取值以该变更记录与所引条目为准。
 
