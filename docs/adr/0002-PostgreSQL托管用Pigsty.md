@@ -21,7 +21,7 @@ ADR-0001 把 staging 与 prod 的 PostgreSQL 定为阿里云 RDS（高可用 + 1
 
 | 项 | 决定 | 版本线 | 说明 |
 | --- | --- | --- | --- |
-| PostgreSQL（staging、prod） | Pigsty 管理的集群，跑在云 ECS 上（本文以阿里云为默认；staging 实测节点由负责人在火山引擎采购，见 §10；prod 云厂商未定，换云时补 ADR，2026-10-09 回写） | Pigsty 4.5.x，首装 v4.5.0（2026-08-14 发布）；PostgreSQL 18，小版本以该版离线包为准 | 用离线包安装，不在线跟随上游软件源（文档强烈建议生产这样做）；升级先 staging 后 prod；已部署环境不重跑 `deploy.yml`。退版预案不变：staging 验证发现 PG 18 的离线包或 pgvector 有问题时退 PG 17（ADR-0001 §2），不改代码 |
+| PostgreSQL（staging、prod） | Pigsty 管理的集群，跑在云 ECS 上（本文以阿里云为默认；staging 首装节点由负责人在火山引擎采购，2026-10-18 起迁到阿里云 ECS，见 §10；prod 云厂商未定，换云时补 ADR，2026-10-09 回写） | Pigsty 4.5.x，首装 v4.5.0（2026-08-14 发布）；PostgreSQL 18，小版本以该版离线包为准 | 用离线包安装，不在线跟随上游软件源（文档强烈建议生产这样做）；升级先 staging 后 prod；已部署环境不重跑 `deploy.yml`。退版预案不变：staging 验证发现 PG 18 的离线包或 pgvector 有问题时退 PG 17（ADR-0001 §2），不改代码 |
 | 操作系统 | Ubuntu 24.04 LTS，x86_64；同一集群各节点同版本，全新系统 | — | Pigsty 的验证基线之一；离线包绑定系统小版本，ECS 镜像要对得上（§10） |
 | PostgreSQL（local、test、CI） | 不变：`pgvector/pgvector:0.8.6-pg18-trixie` 容器 | 同 ADR-0001 | Pigsty 需要 Linux 节点，不进开发机和 CI。大版本与云上一致，小版本允许不同 |
 | 扩展清单 | 业务用到的扩展只由迁移里的 `CREATE EXTENSION` 建；云上版本须与本地镜像一致（现为 pgvector 0.8.6） | — | Pigsty 预置的 `monitor` schema 和约 15 个扩展是运维对象，不进 `db/schema.sql`；快照与漂移比对只针对由迁移重建的库（ADR-0001 §4.2 第 13 项不变） |
@@ -150,6 +150,7 @@ ADR-0001 把 staging 与 prod 的 PostgreSQL 定为阿里云 RDS（高可用 + 1
 **staging 首装实测**（2026-10-07，B1-23 第一段；节点与配置记录在私有仓库 `rebate-private/ops/pigsty/staging/`）：
 
 - 云：staging 节点由负责人在**火山引擎**采购（4C8G、Ubuntu 24.04、x86_64，系统盘 20G + 数据盘 30G），不是本文写的阿里云；prod 用哪家未定，按本文继续以阿里云为默认，换云时补 ADR。备份仓库在阿里云 OSS 与火山 TOS 之间由负责人选定后再接（跨云走公网有流量费）。
+- 2026-10-18 起 staging 迁到阿里云 ECS（负责人决定，2026-11-21 在对话中确认；本条只同步事实，本文其余决定不变）：新节点同为 4C8G、Ubuntu 24.04、x86_64，系统盘 99G、没有单独数据盘，Pigsty 数据目录直接在系统盘上；按首装的做法在新机上重建，新库是空库，旧数据与旧密钥都没有迁；域名当天切到新机。上一条写的火山引擎节点是首装时的旧机，它的去留由负责人处理。节点与做法记录在私有仓库同一目录的「2026-10-18 迁到阿里云 ECS」一节。staging 与默认的 prod 云厂商因此同在阿里云，备份仓库不再有跨云流量的顾虑。
 - 第 1 项：国内镜像上找不到 v4.5.0 的 Ubuntu 24.04 离线包，节点也连不上 GitHub，staging 按 `region: china` 在线安装、版本固定 v4.5.0；prod 是否能拿到离线包仍未定。PostgreSQL 18.6；pgvector 源里默认 0.8.7，已降到 0.8.6 并锁定，与本地镜像一致。
 - 第 3 项：五个 `couli_*` 角色不入 `dbrole_*`、只靠自写 `hostssl` 规则登录时，权限与设计一致（不带 SSL 被拒、`couli_app` 不能 DDL、`couli_readonly` 只读、`couli_maint` / `couli_payout` 读不了业务表）；`dbuser_monitor` 读不到 `app` 下的业务表；经 HAProxy 连接时数据库看到的来源地址是节点自己。
 - 迁移 0001–0018、种子、预建分区在 staging 跑通；排除 Pigsty 运维对象（`monitor`、`repack`、预装扩展、外部服务器 `fs` 及对 Pigsty 角色的授权）后，结构与 `db/schema.sql` 无差异。
