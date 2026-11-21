@@ -2,6 +2,7 @@
 
 - 核对版本：规划提交 32a9765；代码主干 f1cd662c（rebate-platform 远端 main，2026-10-21 核对；派发前再核对一次，对不上的写进第 7 节）
 - 定稿：负责人 2026-10-21「全部定稿吧 先开发 后面在微调」（[变更记录](../../docs/changes/20261021-App内高保真第3批定稿.md)）；画板在 `couli-runs/design-hifi/project/<文件名>`（1 倍 PNG 在 `review-me/v1/png/`），不入公开仓库，完整 sha256 见 [design/README.md](../README.md)「App 内高保真第 3 批定稿」；逐张改动与依据见 `review-me/v1/README.md` §3
+- 2026-11-20 运营位后台可配（[变更记录](../../docs/changes/20261120-运营位后台可配.md)，00 §8 第 ② 类）：「更多服务」一组改为后台下发（`page_key=me` 的 `more_services`，01 F-HOME-10，规则 08 BR-TEXT-28～30），「订单与钱包」「推广与邀请」两组仍由客户端固定；画板没有改，下发的格子沿用画板的宫格样式；任务 APP-20 / HM-16，验收 AC-S1-191～193
 - 路由：`Me`（Tab「我的」，auth none，入口 in_app / push）；去哪：钱包与提现（第 2 批 [app-wallet.md](app-wallet.md)、[app-withdraw.md](app-withdraw.md)）、订单、`InviteShare`、`InviteBackfill`、`Favorites`、`ShareHub` / `Earnings`（公开版）、`Messages`、`Help`、`Settings`、联系客服（[app-contact-cs.md](app-contact-cs.md)）、`Login`
 - 需求：01 §4.1「我的」、§4.2 `Me` 行；F-INV-02、F-INV-06、F-MSG-07、F-WDR-01（余额卡口径）；规则只引编号：BR-TEXT-01、BR-TEXT-10 细则「金额隐藏」、BR-INV-03 细则、BR-INV-07、BR-INV-18、BR-INV-19、BR-WDR-05 细则、BR-ID-02 细则、BR-ID-13 细则；验收：AC-S1-62、AC-S1-105、AC-S1-84、AC-S1-158、AC-S1-185；任务：APP-12、HM-08（深色 DS-02）
 - 可参考的已合并页面：原生三端仓库派发前核对
@@ -30,7 +31,7 @@
 | 可提现余额卡 | 狸橙实底主卡 + 【提现】+ 小眼睛 | balance.*（口径 BR-TEXT-01） | 金额隐藏只改本机显示（BR-TEXT-10 细则） |
 | 补填提示条 | 提示条 +「去填写」 | invite_backfill | 进 `InviteBackfill`（「我的」来源） |
 | 通知引导条 | 提示条 + 去设置 | 系统权限 | 只在被拒后出现（BR-ID-13 细则） |
-| 分组宫格 | 订单与钱包 / 推广与邀请 / 更多服务 | — | 按路由跳转；授权状态摘要不放本页（06 第 9 项） |
+| 分组宫格 | 订单与钱包 / 推广与邀请 / 更多服务 | 前两组客户端固定；「更多服务」读 getPage(`me`) 的 `more_services`（图标、名称、顺序、徽标无 / 红点 / 最多 2 字、跳转、起止时间），拉取失败或为空回落内置默认格子（iOS 系统线性图标）（2026-11-20，BR-TEXT-28～30） | 按路由跳转，跳转目标不合本端路由表或 `bridge_origins` 的格子不显示（BR-TEXT-30）；授权状态摘要不放本页（06 第 9 项） |
 
 ## 3. 文案键
 
@@ -48,6 +49,7 @@
 | operationId | 什么时候调 | 本页会遇到的错误码 |
 | --- | --- | --- |
 | getMe（getConfig 启动时已取：宫格开关、邀请配置） | 进入、回前台、从子页返回 | 10001（会话失效转游客态）、50001 |
+| getPage（`page_key=me`，2026-11-20） | 进入、下拉；有缓存先显示缓存 | 失败或空数组：「更多服务」回落内置默认格子，不提示错误 |
 
 ## 6. 稿上没画、实现要做的
 
@@ -57,4 +59,5 @@
 
 - getMe 只用 `invite_code=null` 表示不能邀请，不区分未成年（`MeMinor`：隐藏邀请码与「推广与邀请」组）与其他暂不可邀请（`InviteShareUnavailable-v2` 仍从宫格进入）；隐藏整组的判定待上游（契约线 / BR-INV-18、BR-INV-19）。
 - 01 §4.1「我的」行仍写「淘宝 / 拼多多授权状态」，已被 §4.2 `Me` 行（06 第 9 项）取代，待上游（规划同步）。
+- 「更多服务」改读下发（2026-11-20）：`icon_grid` 的条目数上限、列数与徽标字段名待契约线 CT-27 定稿；游客态是否也显示下发的「更多服务」格子（现画板游客只有帮助中心与设置）待上游，定之前游客态不显示下发格子。
 - 游客卡、宫格与补填提示条的文案 08 无键，待上游（BR-TEXT-14 补键）；契约 `texts.default.json` 尚无 `invite.bound_toast`，待契约线同步。
