@@ -52,7 +52,7 @@
 | operationId | 什么时候调 | 本页会遇到的错误码 |
 | --- | --- | --- |
 | adminListAdjustments / adminGetAdjustment | 进入、筛选、【详情】 | 10001、10403、40401 |
-| adminCreateAdjustment | 【提交并生效】、红冲提交（都是一步提交并批准） | 短信档 token 缺失或为动态码档被拒（BR-ID-34）；关联单据为空、RESTORE 不可人工选（20001）；关联单据含联盟对账或通道对账差错单被拒（BR-FUND-24 ⑨，拒绝码按契约）；关联的差错单已不在待处理 / 处理中 → 20902（`data.resource=recon_diff`）；同一原单第二次红冲被拒（码待契约线定，BR-FUND-24 细则） |
+| adminCreateAdjustment | 【提交并生效】、红冲提交（都是一步提交并批准） | 短信档 token 缺失或为动态码档被拒（BR-ID-34）；关联单据为空、RESTORE 不可人工选（20001）；关联单据含联盟对账或通道对账差错单被拒（20001，`data.fields=[refs]`、`data.reason=adjust_ref_invalid`，BR-FUND-24 ⑨ 细则，2026-11-21 Jev 判定）；关联的差错单已不在待处理 / 处理中 → 20902（`data.resource=recon_diff`）；同一原单第二次红冲被拒（码待契约线定，BR-FUND-24 细则） |
 | adminApproveAdjustment | 【批准并短信验证】 | 同上；状态已变；追回单所关联的差错单已不在待处理 / 处理中 → 20902（`data.resource=recon_diff`，BR-FUND-24 ⑨） |
 | adminRejectAdjustment | 驳回系统预填单（必填原因） | 20001；状态已变 |
 | adminListBadDebtWriteoffs / adminApproveBadDebtWriteoff | 核销页签 / 批准 | 有未完结提现单被拒（BR-FUND-12）；余额回正时的处理按 BR-FUND-12；短信档 |
@@ -67,7 +67,7 @@
 
 ## 7. 待定与不一致
 
-- 决定 ②（负责人 2026-10-18）：人工发起的调账单（含红冲单）一律一步提交并生效，不再提供【保存待批】与【撤回】；待批列表只留系统预填的 ACCOUNT_CLOSED 单（批准或驳回）。写在 BR-FUND-24 正文 ① 与细则「后台入口」。2026-11-21 方案 B（`docs/changes/20261121-对外差错单方案B.md`）：待批列表另有系统预填的 PAYOUT_RECOVERY 追回单（通道对账差错单确有多付时生成，BR-FUND-24 ⑨），在本页或差错单【追回】批准 / 驳回；画板没有画这一种行，按 ACCOUNT_CLOSED 预填行同样式实现。画板 AdmAdjust / AdmAdjustReverse 的【保存待批】按钮、列表里的【撤回】与人工发起的「待批」样例行（ADJ20261008003）为定稿前写法，本期不渲染、不作依据；画板待改。
+- 决定 ②（负责人 2026-10-18）：人工发起的调账单（含红冲单）一律一步提交并生效，不再提供【保存待批】与【撤回】；待批列表只留系统预填的 ACCOUNT_CLOSED 单（批准或驳回）。写在 BR-FUND-24 正文 ① 与细则「后台入口」。2026-11-21 方案 B（`docs/changes/20261121-对外差错单方案B.md`）：待批列表另有系统预填的 PAYOUT_RECOVERY 单（通道对账差错单确有多付时生成调减单；确实没付或少付时生成调增单，2026-11-21 Jev 判定，BR-TEXT-19 给调增定出用户侧说明之前不生成；BR-FUND-24 ⑨），在本页或差错单【追回】批准 / 驳回；画板没有画这一种行，按 ACCOUNT_CLOSED 预填行同样式实现。画板 AdmAdjust / AdmAdjustReverse 的【保存待批】按钮、列表里的【撤回】与人工发起的「待批」样例行（ADJ20261008003）为定稿前写法，本期不渲染、不作依据；画板待改。
 - 画板状态名「待批」与 BR-TEXT-25「待批准」不一致：实现按 BR-TEXT-25，画板待改。
 - 画板核销拦截态写了配置键名与默认值：以 BR-FUND-12 与 08 §14.6 决-11 登记为准，前端不写死。
 - 重复红冲的接口拒绝码待契约线定（BR-FUND-24 细则，规划/06「2026-10-05 设计审查待确认」）。
