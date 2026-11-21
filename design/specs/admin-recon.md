@@ -3,7 +3,7 @@
 - 核对版本：规划提交 8c91f67（负责人 2026-10-18 后台第 2 批定稿「全部按推荐」，`docs/changes/20261018-后台第2批定稿.md`）；代码主干 2fdbf110（rebate-platform 远端 main，2026-10-18 核对，尚无后台财务契约；派发前再核对一次）
 - 画板存放：`couli-runs/design-hifi/project/<文件名>`（PNG 在 `review-admin/png/`），不入公开仓库；完整 sha256 登记在 [design/README.md](../README.md) 第 15 项「管理后台第 2 批」
 - 路由：后台资源 `recon`（菜单「资金 / 对账与差错」，页签「对账任务」）、`recon-diffs`（页签「差错单」）、`recon-diffs/{id}`（处理抽屉）；从哪来：侧栏、工作台「未关闭差错单」卡、月结账单详情、提现单详情（风险标签「有对账差错」）；去哪：调账页（[admin-adjustments.md](admin-adjustments.md)）、订单详情、提现单详情、支付单收款对账（R4，F1-13）
-- 需求：01 F-ADM-08（对账与差错单部分）；规则只引编号：BR-FUND-19（日终校验、余额缓存自动更正、账务自检异常）、BR-FUND-20（联盟回款 R1 确认）、BR-FUND-22（平台恢复 / 申诉恢复差错单，ADMIN_RESTORE）、BR-FUND-23（月末三项核对）、BR-FUND-24（RECON_FIX 调账）、BR-WDR-23（通道对账 R2 与提现冻结）、BR-WDR-05（差错单关闭随单解除冻结）、BR-PAY-07（R4 在支付单页处理）；验收：AC-ADM-08、10 AC-S2-30、AC-S2-48、AC-S2-49、AC-S2-50、AC-S2-93、AC-S2-95、AC-S1-157；任务：05 F1-08e
+- 需求：01 F-ADM-08（对账与差错单部分）；规则只引编号：BR-FUND-19（日终校验、余额缓存自动更正、账务自检异常）、BR-FUND-20（联盟回款 R1 确认）、BR-FUND-22（平台恢复 / 申诉恢复差错单，ADMIN_RESTORE）、BR-FUND-23（月末三项核对）、BR-FUND-24（人工调账；⑨ 对外差错单与调账，2026-11-21 方案 B）、BR-FUND-09 细则「联盟对账差错单的处理」、BR-WDR-23（通道对账 R2 与提现冻结；细则「确有多付」）、BR-WDR-05（差错单关闭随单解除冻结）、BR-PAY-07（R4 在支付单页处理）；验收：AC-ADM-08、10 AC-S2-30、AC-S2-48、AC-S2-49、AC-S2-50、AC-S2-93、AC-S2-95、AC-S2-114、AC-S1-157；任务：05 F1-08e（方案 B 入口改造为代码仓库台账 F1-08ee，依赖 05 B2-17）
 - 可参考的已合并页面：`apps/admin/src/pages/admins/**`
 - 是否资金或归属页面：是（恢复、调账、关闭差错单改变资金与冻结）
 
@@ -14,7 +14,7 @@
 | 对账任务列表 + 月末三项核对 | AdmRecon.dc.html（894f7d854fa0） | 持 `fund.recon` 或 `fund.view` | adminListReconRuns · 200 · example；adminGetMonthEndCheck |
 | 差错单列表 | AdmReconDiffsList.dc.html（4ddb589b0b6a） | 页签「差错单」 | adminListReconDiffs · 200 · example |
 | 差错单处理（申诉恢复） | AdmReconDiffs.dc.html（70b1104410e4） | 行操作【处理】，类型为申诉恢复 | adminGetReconDiff；【确认恢复】adminRestoreOrders；【不恢复并关闭】adminCloseReconDiff |
-| 其他类型的处理（调账 / 核销 / 关闭） | 不适用（无画板；抽屉同布局，操作区按类型换按钮） | 行操作【处理】 | 调账跳 [admin-adjustments.md](admin-adjustments.md) 新建并带关联单据 |
+| 其他类型的处理（订单级处理 / 追回 / 核销 / 关闭） | 不适用（无画板；抽屉同布局，操作区按类型换按钮） | 行操作【处理】 | 追回打开系统预填的待批调账单（[admin-adjustments.md](admin-adjustments.md) 批准对话框）；订单级处理跳订单详情（2026-11-21 方案 B） |
 | 空 / 加载中 / 出错 | 不适用（无画板；按三态写法） | — | 本地 |
 | 无权限 | 不适用 | 无 `fund.recon` 且无 `fund.view` | 菜单隐藏；10403 |
 
@@ -32,7 +32,7 @@
 | 差错单筛选 | Form：Select（类型 `recon_diff_type`、来源 `recon_diffs.source`、状态 `recon_diff_status`）+ 金额列说明 Alert | 查询参数 | — |
 | 差错单列表 | Table：差错单号、类型、来源、周期、关联单据（链接）、我方已记（含说明小字）、对方（含说明）、差额（正负只表示谁大，结论另看）、状态、操作【处理】【详情】 | `recon_diffs` | — |
 | 处理抽屉（申诉恢复） | Drawer：差错单摘要（来源、申诉单、用户、生成时间、风控状态、处理权限）+ 恢复范围 Table（子订单、当前状态、恢复方式、补发金额）+ 补发合计、流水类型、用户余额前后 + Button【不恢复并关闭】（必填原因）【确认恢复】（`order.restore`，动态码） | BR-FUND-22 R12 / R13、③ | 处罚作废的订单不在范围（BR-FUND-22） |
-| 处理抽屉（其他类型） | 同上摘要 + 按类型的操作：【去调账】（带关联单据，`fund.adjust`；只在联盟对账不一致与通道对账不一致两类上出，条件与预填见 §7「【去调账】出现在哪些差错单上」）、【核销】（R2 迟到成功 → W11，`payout.execute`）、【已关闭（不处理）】（必填原因，`fund.recon`；会解除提现冻结时加动态码）；不做【重算余额缓存】按钮（2026-11-20：余额缓存不一致由系统自动按分录更正，BR-FUND-19） | BR-FUND-19、BR-WDR-23、BR-FUND-24 | 关闭时随单解除 `recon_diff` / `ledger_mismatch` 冻结（04 §11.2 `fund.recon`）；会解除冻结的关闭弹 StepUpModal（动态码），不会解除的不弹 |
+| 处理抽屉（其他类型） | 同上摘要 + 按类型的操作（2026-11-21 方案 B，条件见 §7「对外差错单的处理入口」）：联盟对账不一致（`union_mismatch`）出【去订单详情】【按单号手动同步】（`order.view`），不出【去调账】；通道对账不一致（`channel_mismatch`）有系统预填的待批追回单时出【追回】（打开该单的批准对话框，`fund.adjust`，短信档；驳回必填原因），不出自由填写的【去调账】；【核销】（R2 迟到成功 → W11，`payout.execute`）、【已关闭（不处理）】（必填原因，`fund.recon`；会解除提现冻结时加动态码）；不做【重算余额缓存】按钮（2026-11-20：余额缓存不一致由系统自动按分录更正，BR-FUND-19） | BR-FUND-19、BR-WDR-23、BR-FUND-24 ⑨、BR-FUND-09 | 关闭时随单解除 `recon_diff` / `ledger_mismatch` 冻结（04 §11.2 `fund.recon`）；会解除冻结的关闭弹 StepUpModal（动态码），不会解除的不弹 |
 
 ## 3. 文案键
 
@@ -54,13 +54,15 @@
 | adminGetMonthEndCheck | 进入任务页签 | 10403 |
 | adminListReconDiffs / adminGetReconDiff | 切页签、筛选、【处理】 | 10403、40401 |
 | adminRestoreOrders（ADMIN_RESTORE） | 【确认恢复】 | platform_status 为失效不得恢复（R12 守卫）；10403 |
+| adminApproveAdjustment / adminRejectAdjustment（调账接口，见 [admin-adjustments.md](admin-adjustments.md) §4） | 【追回】对话框里批准 / 驳回系统预填的追回单（2026-11-21） | 短信档 token 缺失被拒（BR-ID-34）；差错单已不在待处理 / 处理中 → 20902（`data.resource=recon_diff`，BR-FUND-24 ⑨）；调账单状态已变 |
+| 订单手动同步（订单页已有接口，`order_sync_requests` mode=order_nos） | 【按单号手动同步】（联盟对账不一致，2026-11-21） | 10403 |
 | adminCloseReconDiff | 【不恢复并关闭】【已关闭（不处理）】 | 原因为空（20001）；会解除提现冻结而动态码档 token 缺失被拒（BR-ID-34，2026-11-20）；关闭时解除冻结失败按 `contracts/error-codes.yaml` |
 | adminRecalcBalanceCache | 本页不调用（2026-11-20：不做按钮；接口留作系统自动更正被护栏拦下时的人工兜底，BR-FUND-19） | 短信档 token 缺失被拒（BR-ID-34） |
 | adminCreateExport | 月末三项【导出】 | 10403 |
 
 ## 5. 权限点与开关（04 §11.2）
 
-`fund.recon`（对账操作与差错单处理、关闭结案必填原因；普通操作不需二次验证；关闭会解除提现冻结的差错单须动态码，不会解除冻结的关闭不需（负责人 2026-11-20，BR-FUND-19、BR-ID-34）；人工触发余额缓存重算为短信档，本页不做入口）；`order.restore`（平台恢复 / 申诉恢复，动态码，一人可完成）；`fund.adjust`（由差错单去调账，短信档，见调账规格）；`payout.execute`（R2 迟到成功核销 W11，动态码）；`fund.view`（只读）；`export`。
+`fund.recon`（对账操作与差错单处理、关闭结案必填原因；普通操作不需二次验证；关闭会解除提现冻结的差错单须动态码，不会解除冻结的关闭不需（负责人 2026-11-20，BR-FUND-19、BR-ID-34）；人工触发余额缓存重算为短信档，本页不做入口）；`order.restore`（平台恢复 / 申诉恢复，动态码，一人可完成）；`fund.adjust`（在差错单上打开并批准 / 驳回系统预填的追回单，批准为短信档，见调账规格；2026-11-21 起不再从差错单自由新建调账单）；`order.view`（联盟对账差错单上的按单号手动同步）；`payout.execute`（R2 迟到成功核销 W11，动态码）；`fund.view`（只读）；`export`。
 
 ## 6. 稿上没画、实现要做的
 
@@ -72,5 +74,5 @@
 - 「差额 = 对方 − 我方已记」与正负号说明为稿面约定；字段名与计算方向由契约线定，画板只作列说明。
 - 画板只画了申诉恢复一种处理流程；调账、核销、关闭的抽屉操作区按本规格 §2 末行与 F1-08e 实现，补画板时核对（重算不做按钮，2026-11-20）。
 - 2026-11-20 负责人决定（`docs/changes/20261120-账务自检自动更正与差错单分类.md`）：BR-FUND-19 的账务自检异常（类型仍是 `ledger_mismatch`）在本页单列一栏、不进财务待办，分栏方式与栏名由工程定，画板没有画；余额缓存被系统自动更正的记录怎样在本页查看也由工程定。本规格 §2、§4、§5、§6 已按该决定同步，画板不动。
-- 【去调账】出现在哪些差错单上（编排裁定 D10-2219，2026-11-20；更正 D10-2206）：持 `fund.adjust`、状态为待处理或处理中、类型为联盟对账不一致（`union_mismatch`，R1）或通道对账不一致（`channel_mismatch`，R2）时出；账务自检异常（`ledger_mismatch`）与其余类型不出——内部自检差异不由调账「做平」（BR-FUND-19 细则「账务自检异常」）。预填：关联单据为该差错单；`union_mismatch` 预填原因 RECON_FIX，`channel_mismatch` 原因必选、只给 RECON_FIX 与 PAYOUT_RECOVERY 两项（BR-FUND-24 ②）；用户与金额不预填，差错单详情补上用户后再改为预填并锁定（D10-2204）。其余类型是否开放待定。
+- 对外差错单的处理入口（负责人 2026-11-21 方案 B，编排裁定 D10-2317 ②，`docs/changes/20261121-对外差错单方案B.md`；更正 D10-2219 的【去调账】口径，D10-2219 又更正 D10-2206）：差错单上不再出【去调账】。联盟对账不一致（`union_mismatch`）：状态为待处理或处理中时出【去订单详情】与【按单号手动同步】（`order.view`），订单级处理完以【已关闭（不处理）】结案并写处理结果；各子类走哪条订单级路径见 BR-FUND-09 细则「联盟对账差错单的处理」。通道对账不一致（`channel_mismatch`）：只在该差错单有系统预填的待批追回单（确有多付）时出【追回】（持 `fund.adjust`），打开调账规格的批准对话框，用户、金额、原因码、关联单据都只读，【批准并短信验证】或【驳回】（必填原因）；没有预填单的不出调账入口（确有多付的情形只在 BR-WDR-23 细则维护）；内部记已付而通道没付或少付的属系统异常，只告警给工程，本页不给财务处理按钮（负责人 2026-11-21，BR-WDR-23 细则）。批准成功后差错单显示「已调账」，提现冻结仍在，提示到提现冻结记录处解除（`risk.freeze`，动态码）。服务端对关联这两类差错单的人工调账一律拒绝（20001，`data.reason=adjust_ref_invalid`），前端不提供带差错单的新建入口。账务自检异常（`ledger_mismatch`）与其余类型照旧不出调账入口。原写法「`union_mismatch` 预填原因 RECON_FIX，`channel_mismatch` 原因必选、只给 RECON_FIX 与 PAYOUT_RECOVERY 两项；用户与金额不预填，差错单详情补上用户后再改为预填并锁定（D10-2204）」作废；预填单的用户取自登记时匹配到的提现单（差错单的关联单据可能是提现单，也可能是账单行的通道单号），不再依赖差错单详情补用户字段（FU-RECON-DIFF-DETAIL-USER-ID 只剩展示用途）。
 - 「处罚解冻」差错单类型取值待契约线登记（BR-FUND-22 细则「处罚解冻证实之后」），列表筛选项补齐前显示编码。
