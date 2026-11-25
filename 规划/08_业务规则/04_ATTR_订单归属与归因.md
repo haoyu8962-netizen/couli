@@ -534,6 +534,8 @@ C-05 已由负责人决定（拍板第二批 §8 ADD-01）：一次绑定永久�
 
 **为什么过滤 pid_scene**：如果只取“最近一条”，10-19 的 search 会把这笔 Agent 成交记到搜索名下。
 
+**拼多多单推广位下的已知影响**（2026-11-25，BR-ATTR-08「拼多多单推广位」；只说明影响，不改匹配规则）：拼多多订单的推广位恒为保留的那一个（pid_scene=self_buy），所以 lk 缺失或 ① 不命中的拼多多订单，② ③ 只能匹配到 pid_scene=self_buy 的 link：分享、Agent 来源回填不上——窗口内同一用户另有同商品（或同店铺）的自购 link 时回填到那条自购 link（source_match=product 或 shop），没有时 source_match=none。来源回填不影响 user_id、buy_type 与金额（正文），buy_type 仍按 BR-ATTR-08 判。
+
 **指派例**（2026-10-18 改写，原「改派例」见「取代」）：管理员把未归因订单指派给 B → 按 B 的 link_logs 回填，没有旧值需要覆盖。
 
 **lk 格式（待验证）**：京东 `n_{attr_code}_{lk}`，如 `n_k3m9x2qa_a1b2c3`（17 字符；京东转链入参上限 80 字符，来源 09 CAP-JD-05，订单侧回传待实测）；拼多多加 `"lk":"<6位>"`，最长样例 `{"app":"n","uid":"k3m9x2qa","sc":"taolijin","lk":"a1b2c3"}` 为 58 字节（sc 取值最长 8 字符），≤ BR-ID-22 的 64 字节控制值（64 字节为后端规划写法，平台实际上限待 CAP-PDD-05 核实）。解析时京东 lk 捕获组接受 1–16 位（BR-ATTR-06），以便将来调长；按 lk 反查不到 link 或 link 不属于订单 user_id → 不算 exact，继续 ②。
