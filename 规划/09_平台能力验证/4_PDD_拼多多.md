@@ -192,3 +192,16 @@ staging 接拼多多 live（approvals 43）后，B1-04zzf（rebate-platform #233
 | CAP-PDD-02、CAP-PDD-06（规格级价格与带规格转链） | 需特殊权限、未申请（文档已查、未实测） | 详情请求的 `need_sku_info` 是特殊渠道权限、须额外申请，开通后返回 `sku_list`（每个规格的拼团价、进宝算价、券面额、上下架、规格值与 `sku_id_code`）；转链的 `sku_id_list` / `sku_id_code_list` 同样要 sku 权限，否则不生效（[4 附 §6](4_PDD_附_开放平台接入.md#6-官方接口文档与主表的差异)已记）。凑狸本期不申请；2026-10-15 录制的详情调用没有传该参数，返回里没有 `sku_list` | 申请后再测 |
 
 补充：「最低价 sku」按拼团价还是单买价认定，文档未说明；官方指南给的券后价口径是现价（`min_group_price`）减 `coupon_discount`，券门槛按哪个价判断仍是 §4.2 CAP-PDD-02 原有未知项，不变。
+
+### 4.7 2026-11-25 推广位现状：文档核对（未实测）
+
+用途：负责人 2026-11-25 确认拼多多改为单推广位（规则只在 08 BR-ATTR-08「拼多多单推广位」，`docs/changes/20261125-负责人确认项回写.md` §3），本节只登记做这个决定时核对过的平台事实与仍未核实的事项，不是对用户的承诺。主表 CAP-PDD-05「凑狸的做法」里按场景建四个推广位的写法，2026-11-25 起以 BR-ATTR-08 为准（保留一个推广位，其余退役为 retired，仍留在归属白名单，BR-ATTR-02）。
+
+来源：多多进宝官方问答（jinbao.pinduoduo.com/qa-system，「授权备案」分类，questionId=218、219、225；编排 2026-11-24 用内置浏览器未登录读取，摘录在 couli-runs `P0-1122/D10-2811/result.md`，原文不进本仓库）；拼多多开放平台接口文档存档（私有库 `rebate-private/docs-mirror/pdd/`）。
+
+| 对应能力 | 证据类型 | 结论（摘要） | 仍需测试 |
+| --- | --- | --- | --- |
+| CAP-PDD-05（多个推广位与授权备案） | 官方问答已查、未实测 | 官方不建议一个推手使用多个 pid；同一推手用了多个 pid 时，需为每个 pid 各授权备案一次；建议改用一个 pid，在 custom_parameters 里加自定义 key 区分用途（questionId=218）。一个业务平台用户只需备案一次（questionId=225）；一个拼多多账号最多支持授权备案给五个推手账号（questionId=218） | 单推广位上线后，原来只在已退役推广位上备案过的测试用户在保留的推广位上是否判为未备案、需重新备案（预期需要，未实测） |
+| CAP-PDD-05（备案匹配键） | 官方问答已查、未实测 | 生链时 pid 必须与备案时相同；custom_parameters 只要 uid 与备案时一致即可，可另加其他 key（questionId=218、219）。这与主表 CAP-PDD-05「已知事实」里「每组 pid + custom_parameters 都须备案一次」（二手来源，可信度中）不同，以官方问答为准 | 带 sc、lk 等其他 key 生链时 member.authority.query 的 bind 值（§4.2 CAP-PDD-05 步骤 2 的矩阵） |
+| CAP-PDD-05、CAP-PDD-07（退役推广位的旧链接） | 文档未写明、未核实 | 推广位退役后，此前用它生成、已发出的旧链接还能不能下单、订单还计不计佣：官方文档与问答都没有写明 | 退役前后各用旧链接下 1 笔小额单，看订单是否回传、佣金是否为 0（真实下单由负责人定，属 §0.2 硬规则 5 限额） |
+| CAP-PDD-05、CAP-PDD-07（订单回传的 custom_parameters） | 文档已查、未实测 | 订单接口只写「custom_parameters 自定义参数」，没写取自生链时的入参还是点击时链接上的值；增量订单接口写明推广链接带 goodsSign 时订单返回原 goodsSign（docs-mirror `pdd.ddk.order.list.increment.get.md`） | 各下单路径（H5、未安装拼多多、隔日加购、转发）订单是否完整回传 custom_parameters 里的 uid 与 lk——BR-ATTR-08 拼多多按 lk 判 buy_type 依赖它，上线验收单列（BR-ATTR-23） |
