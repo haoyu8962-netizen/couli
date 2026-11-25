@@ -104,6 +104,6 @@ JSON、CSS 只定义视觉与基础交互，不实现登录、授权、价格计
 
 ## 验收与来源
 
-颜色对比度公式与全部关键组合（浅色与深色各一张表）见 [品牌色 §3](../colors/colors.md#3-对比度实测)。尤其主色 `#C44820` 在暖米白上只有 4.41:1、在深色页面底上只有 3.72:1，两种主题下普通链接与强调文字都须使用 `color.text.link` / `color.brand.emphasis`，不能直接复用主色。必要控件边界使用 `color.border.control`；浅分隔线只能装饰。
+颜色对比度公式与全部关键组合（浅色与深色各一张表）见 [品牌色 §3](../colors/colors.md#3-对比度实测)。尤其主色 `#C44820` 在 App 页面底上只有 4.49:1、在后台页面底上只有 4.41:1、在深色页面底上只有 3.72:1，两种主题下普通链接与强调文字都须使用 `color.text.link` / `color.brand.emphasis`，不能直接复用主色。必要控件边界使用 `color.border.control`；浅分隔线只能装饰。
 
 遵循 [Apple HIG · Color](https://developer.apple.com/design/human-interface-guidelines/color) 和 [Apple HIG · Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility) 的语义用色、对比、非颜色线索及适应用户需求原则（核对日期：2026-10-01）。本版已校验 114 个令牌的 JSON 解析与 CSS 值一致性（`--check` 同时核对两个深色块与 JSON 的 `dark` 一致），以及指定实色组合的对比度：浅色价格 / 白底为 15.28:1，待定状态为 5.33:1，错误状态为 5.64:1；深色主文字 / 卡片底为 13.84:1，待定状态为 6.28:1，错误状态为 6.72:1，禁用文字为 4.64:1，控件边界 / 卡片底为 4.25:1；平台标签白字 4.62–4.78:1，主图浮层底叠在纯白图上白字 4.74:1（2026-11-05）。`forced-colors` 中按钮、输入框与焦点线使用系统颜色，但代码回退不能视为已经通过高对比测试。实现必须验证系统强制配色、增强对比、200% 文字放大、灰度与色觉障碍状态辨识；三端 Dynamic Type、屏幕阅读器、触控、焦点及真实素材叠加效果仍需在实现和真机上验证。
