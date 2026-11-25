@@ -9,8 +9,8 @@ window.COULI_BRAND = Object.freeze({
   },
   "metadata": {
     "name": "凑狸",
-    "version": "0.5.2",
-    "date": "2026-11-07",
+    "version": "0.5.3",
+    "date": "2026-11-25",
     "status": "project baseline",
     "theme": "light",
     "modes": [
@@ -19,7 +19,7 @@ window.COULI_BRAND = Object.freeze({
     ],
     "darkThemePhase": "MVP",
     "colorSpace": "sRGB",
-    "description": "当前项目使用的品牌与界面基线；2026-10-04 按设计方向第三轮调整 App 页面底、返利强调、平台来源标签与图片占位（docs/changes/20261004-设计方向第三轮.md）；2026-10-18 v0.4.0 按 00 D35 给每个颜色与阴影令牌补深色取值（dark 字段，value 仍为浅色）并新增组件令牌 T1–T12（docs/changes/20261018-深色令牌进唯一源.md）；2026-11-05 v0.5.0 按商品详情 v3 新增标题前平台文字标签的四个实底色 color.platform.tag.*（淘宝、天猫、京东、拼多多）与主图浮层控件底 color.overlay.on-image（docs/changes/20261105-商品详情v3定稿.md）；同日 v0.5.1 补平台文字标签圆角 radius.tag 与店铺头像圆角 radius.avatar（只加键，不改已有值）。已应用于根目录品牌配置、交付素材与品牌预览，不代表原生接入、Icon Composer 或真机验收完成。App 图标外观变体独立于 UI 主题。；2026-11-07 v0.5.2 新增 Web 动效令牌 motion.*（时长、缓动、轻提示停留、骨架微光与防闪、减弱动态替代；只供 H5 与管理后台，原生三端按平台默认动效、不读这些数，00 D37、编排裁定 D10-837；docs/changes/20261107-Web动效令牌.md）（只加键，不改已有值）",
+    "description": "当前项目使用的品牌与界面基线；2026-10-04 按设计方向第三轮调整 App 页面底、返利强调、平台来源标签与图片占位（docs/changes/20261004-设计方向第三轮.md）；2026-10-18 v0.4.0 按 00 D35 给每个颜色与阴影令牌补深色取值（dark 字段，value 仍为浅色）并新增组件令牌 T1–T12（docs/changes/20261018-深色令牌进唯一源.md）；2026-11-05 v0.5.0 按商品详情 v3 新增标题前平台文字标签的四个实底色 color.platform.tag.*（淘宝、天猫、京东、拼多多）与主图浮层控件底 color.overlay.on-image（docs/changes/20261105-商品详情v3定稿.md）；同日 v0.5.1 补平台文字标签圆角 radius.tag 与店铺头像圆角 radius.avatar（只加键，不改已有值）。已应用于根目录品牌配置、交付素材与品牌预览，不代表原生接入、Icon Composer 或真机验收完成。App 图标外观变体独立于 UI 主题。；2026-11-07 v0.5.2 新增 Web 动效令牌 motion.*（时长、缓动、轻提示停留、骨架微光与防闪、减弱动态替代；只供 H5 与管理后台，原生三端按平台默认动效、不读这些数，00 D37、编排裁定 D10-837；docs/changes/20261107-Web动效令牌.md）（只加键，不改已有值）；2026-11-25 v0.5.3 App 页面底 color.background.canvas 由 #F2EEE6 改为近中性暖白 #F6F5F3，同一层级的浅色一起改为同色调的近中性值：background.muted 与 status.pending.background #F2F1EF、background.placeholder 与 button.primary.disabled.background #EBEAE7、border.subtle 与 source.border #E6E5E3（负责人 2026-11-25 在六个候选里选定，docs/changes/20261125-App页面底改近中性.md）；深色取值与 admin-canvas 不变；只改取值、不加键，用补丁号以免占用 DSX-02 预留的 v0.6.0",
     "cssFontBase": 16,
     "sources": [
       "https://developer.apple.com/design/human-interface-guidelines/color",
@@ -65,7 +65,7 @@ window.COULI_BRAND = Object.freeze({
     "canvas": {
       "token": "color.background.canvas",
       "cssVariable": "--color-background-canvas",
-      "value": "#F2EEE6",
+      "value": "#F6F5F3",
       "dark": "#171513"
     },
     "adminCanvas": {
@@ -83,7 +83,7 @@ window.COULI_BRAND = Object.freeze({
     "imagePlaceholder": {
       "token": "color.background.placeholder",
       "cssVariable": "--color-background-placeholder",
-      "value": "#E9E2D9",
+      "value": "#EBEAE7",
       "dark": "#36312C"
     },
     "textPrimary": {
@@ -149,7 +149,7 @@ window.COULI_BRAND = Object.freeze({
     "sourceBorder": {
       "token": "color.source.border",
       "cssVariable": "--color-source-border",
-      "value": "#E4DED5",
+      "value": "#E6E5E3",
       "dark": "#3A3530"
     },
     "pendingText": {
@@ -161,7 +161,7 @@ window.COULI_BRAND = Object.freeze({
     "pendingBackground": {
       "token": "color.status.pending.background",
       "cssVariable": "--color-status-pending-background",
-      "value": "#EFEAE2",
+      "value": "#F2F1EF",
       "dark": "#2F2B27"
     },
     "successText": {
