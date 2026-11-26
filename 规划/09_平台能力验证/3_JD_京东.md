@@ -119,7 +119,7 @@
 
 **CAP-JD-11（对应 05 HM-04）**
 
-未知项：京东鸿蒙原生版是否响应 openapp.jdmobile scheme，是否声明 App Linking 域名；iOS 上 u.jd.com / union-click.jd.com 是否会被京东 App 作为 Universal Link 接管；scheme 唤起后订单 positionId / subUnionId 是否保留；未安装时 H5（系统浏览器 vs 内置 WebView）下单归因是否保留；Android 各厂商浏览器拦截 scheme 的情况。
+未知项：京东鸿蒙原生版是否响应 openapp.jdmobile scheme，是否声明 App Linking 域名；iOS 上 u.jd.com / union-click.jd.com 是否会被京东 App 作为 Universal Link 接管；scheme 唤起后订单 positionId / subUnionId 是否保留；未安装时 H5（系统浏览器 vs 内置 WebView）下单归因是否保留；Android 各厂商浏览器拦截 scheme 的情况；经微信 OpenSDK 拉起京东小程序（`JumpStep.mini_program`，`user_name` + `path`，2026-11-26 预留，见 5_X CAP-X-03、README §6 U-94）后 `positionId` / `subUnionId` 归因是否保留。
 
 步骤：人：iOS、Android、鸿蒙各一台真机，每台分"已装京东"和"未装京东"。代理：在最小探测 App（V-37）里做跳转测试页，按 ①scheme 包 clickURL、②u.jd.com 短链交给系统浏览器、③内置 WebView 打开 三条路径，上报 link_jump（每步成败、installed）。人：每端每条可用路径先各下 1 单低价商品（≥9 单），定出首选路径后补到首选 ≥3 单（受 §0.2 硬规则 5 限额约束），截屏每一步。代理用 `tools/probe/jd/jd11_jump.ts` 从 order.row.query 取回订单，核对 positionId / subUnionId / validCode，录制存 `fixtures/union-recordings/jd/cap-jd-11/<os>-<path>.json`。
 

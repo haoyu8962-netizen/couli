@@ -136,7 +136,7 @@
 
 **CAP-PDD-11（对应 05 HM-04）**
 
-未知项：客户端 SDK（Android、iOS）提供哪些方法、最低系统版本与包体积、初始化时收集什么（4 附 §4；须取得 SDK 包内说明）；经 SDK 打开拼多多与 schema_url / mobile_url 直跳相比，订单归因是否一致（2026-10-03 功能对照 G-10）；schema_url 的 scheme 前缀；mobile_url 在 iOS 已安装时是否走 Universal Link；鸿蒙原生版拼多多是否支持 schema_url 或 App Linking、唤起后归因是否保留；跳转后买家先加购、隔天再买，订单是否仍归因，点击有效期多长；未安装时 H5 下单能否带回 p_id 与 custom_parameters。
+未知项：客户端 SDK（Android、iOS）提供哪些方法、最低系统版本与包体积、初始化时收集什么（4 附 §4；须取得 SDK 包内说明）；经 SDK 打开拼多多与 schema_url / mobile_url 直跳相比，订单归因是否一致（2026-10-03 功能对照 G-10）；schema_url 的 scheme 前缀；mobile_url 在 iOS 已安装时是否走 Universal Link；鸿蒙原生版拼多多是否支持 schema_url 或 App Linking、唤起后归因是否保留；经微信 OpenSDK 拉起拼多多小程序（`JumpStep.mini_program`，`user_name` + `path`，2026-11-26 预留，见 5_X CAP-X-03、README §6 U-94）后 `p_id` 与 `custom_parameters` 归因是否保留；跳转后买家先加购、隔天再买，订单是否仍归因，点击有效期多长；未安装时 H5 下单能否带回 p_id 与 custom_parameters。
 
 步骤：
 1. 代理：在 iOS / Android / 鸿蒙最小探测 App（V-37）实现按 primary / fallbacks 顺序跳转，上报 link_jump（每步成败、installed）。

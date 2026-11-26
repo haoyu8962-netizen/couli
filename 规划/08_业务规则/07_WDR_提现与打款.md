@@ -234,6 +234,7 @@
 - 与花卷云「提现基础设置」对照（2026-09-30）：「每月最多改提现账号 N 次」与本条 ④ `withdraw.payout_account_change_per_month` 对应，默认值见 ④。
 - 同步落点（2026-09-30 负责人补充）：规划/04 §10 配置键增加 withdraw.payout_methods；规划/01 F-ADM-12 配置中心「提现设置」增加收款方式开关；规划/06 Q-B3 收款方式行按 D12 写明两种方式。
 - 同步落点（2026-09-30 拍板第一批）：规划/04 §3.2 payout_accounts / payout_account_changes 增加 payout_method、bank_card_no_cipher、bank_card_hmac、bank_name、card_bin 与 (app_id, bank_card_hmac) WHERE is_current 部分唯一索引，withdrawals 收款人快照增加 payout_method、payee_hmac；规划/04 §6.1 `PUT /v1/me/payout-account` 请求体增加 payout_method 与银行卡字段；规划/01 F-WDR-02、§4.2 页面 `PayoutAccount`（「收款账号（支付宝）」改为支付宝 / 银行卡）、J6 第 2 步；08 10_ID BR-ID-31 黑名单 HMAC 增加收款银行卡；08 12_TEXT 错误码表 30305「请先绑定收款支付宝账号」改为不限收款方式；规划/10 AC-S2-21 ③ 补银行卡绑定（卡号校验、贷记卡拒绝、户名不一致 30307、跨会员 30308、跨方式换绑计次）；规划/09 5_X CAP-X-08 未知项补银行卡三要素核验。
+- **客户端查询失败与二次验证提交一致性约束**（2026-11-26，`docs/changes/20261126-同类实践对照补缺.md`）：① `GET /v1/me/payout-account` 网络或服务失败时，页面进入错误重试态，**严禁当作空结果落入「未绑定」引导流程**；② 钱包/提现页余额查询失败时按 BR-TEXT-10 保留有效快照或错误态，**严禁将余额覆盖显示为 `¥0.00`**；③ 绑定或换绑收款账号的服务端账号一致性校验复用既有 `step_up_token` 业务摘要绑定 `bsum`（收款方式 + 规范化账号 HMAC，不符返回 `10003`，见 BR-ID-08 细则「绑定业务摘要」、规划/04 §5 `step-up`）与实名姓名校验（本条 ①），**不新增额外服务端安全机制**；客户端须在发起二次验证后锁定待提交收款方式与账号输入，或在用户修改收款方式 / 账号时立即作废旧 `step_up_token` 并要求重新完成二次验证后方可提交（避免因摘要不符被 `10003` 拒绝）。
 
 #### BR-WDR-03 细则 · 申请校验顺序与错误码
 
