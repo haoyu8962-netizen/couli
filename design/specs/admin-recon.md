@@ -54,7 +54,7 @@
 | adminGetMonthEndCheck | 进入任务页签 | 10403 |
 | adminListReconDiffs / adminGetReconDiff | 切页签、筛选、【处理】 | 10403、40401 |
 | adminRestoreOrders（ADMIN_RESTORE） | 【确认恢复】 | platform_status 为失效不得恢复（R12 守卫）；10403 |
-| adminApproveAdjustment（调账接口，见 [admin-adjustments.md](admin-adjustments.md) §4） | 【追回】对话框里批准系统预填的追回单（2026-11-21） | 二次验证按 BR-ID-34 strict（BR-FUND-24，以契约标记 / 服务端返回为准，2026-11-27 同步）；差错单已不在待处理 / 处理中 → 20902（`data.resource=recon_diff`，BR-FUND-24 ⑨）；调账单状态已变 |
+| adminApproveAdjustment（调账接口，见 [admin-adjustments.md](admin-adjustments.md) §4） | 【追回】对话框里批准系统预填的追回单（2026-11-21） | 二次验证按 BR-ID-34（BR-FUND-24；以契约标记 / 服务端返回为准，2026-11-27 同步）；差错单已不在待处理 / 处理中 → 20902（`data.resource=recon_diff`，BR-FUND-24 ⑨）；调账单状态已变 |
 | adminRejectAdjustment（调账接口，见 [admin-adjustments.md](admin-adjustments.md) §4） | 【追回】对话框里驳回系统预填的追回单（2026-11-21；必填原因、不做二次验证，BR-FUND-24 细则「驳回与撤回不需二次验证」，2026-11-27 同步） | 原因为空（20001）；10403；调账单状态已变 |
 | 订单手动同步（订单页已有接口，`order_sync_requests` mode=order_nos） | 【按单号手动同步】（联盟对账不一致，2026-11-21） | 10403 |
 | adminCloseReconDiff | 【已关闭（不处理）】（含恢复类，2026-11-27、D10-3425 ②，取代原【不恢复并关闭】） | 原因为空（20001）；二次验证按 BR-ID-34、BR-FUND-19、BR-WDR-05（以契约标记 / 服务端返回为准，2026-11-27 同步）；关闭时解除冻结失败按 `contracts/error-codes.yaml` |
