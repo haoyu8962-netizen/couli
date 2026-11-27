@@ -96,6 +96,8 @@
 
 2026-11-26 上线前实施范围旁注（`docs/changes/20261126-裁定与待并入批量回写.md` §1.3；负责人 2026-11-25 确认，编排裁定 D10-3162）：BR-WDR-23 细则补上线前只落实最简原则、初期人工按 `out_biz_no` 跨账单日复核及自动预填追回单联动留待上线后另行裁定的旁注，并给自动预填验收标明适用阶段（终态规则与状态不变）。
 
+2026-11-27 锁内复核清单补写（00 §8 第 ① 类摘要同步，编排核对 D10-3494）：BR-WDR-03 细则「锁内再执行一次」的步骤由 ⑦⑧⑩⑪⑫ 补为 ⑤⑥⑦⑧⑩⑪⑫，跟上 D10-192 已加入的 ⑤⑥；规则与取值不变。
+
 ### 7.1 规则一览
 
 | 编号 | 规则 | 状态 | 影响面 |
@@ -256,7 +258,7 @@
 - max_withdrawable_fen = can_withdraw ? floor_to_step(min(available_fen, withdraw.max_amount_fen, 当前收款方式的单笔上限, 未成年本月剩余额度))（当前收款方式的单笔上限取 withdraw.method_max_amount_fen.<payout_method>，为 0 或还没绑定收款账号时不计；2026-10-04） : 0。floor_to_step 按 amount_step_fen 向下取整。结果 &lt; min_amount_fen 时，返回 can_withdraw=false、block_code=30303、block_reason=below_min、max_withdrawable_fen=0。次数用尽、被冻结或存在负余额时，can_withdraw=false，max 为 0。
 - 鉴权放在开关之前：签名未通过的请求不应得到业务状态信息，这样也与全局中间件的执行顺序一致。
 - `data.reason` 为枚举，客户端从 `/v1/dict` 取文案。取值：`account_frozen`、`below_min`、`not_multiple`、`above_max`、`above_method_max`（2026-10-04）、`net_too_small`、`daily_count`、`monthly_count`、`payee_daily_count`、`payee_daily_users`、`self_purchase_required`、`payout_account_change_limit`、`payout_account_verify_limit`（收款账号接口专用，BR-WDR-02 细则「核验次数上限」，2026-10-03）。
-- ⑦⑧⑩⑪⑫ 在 BR-WDR-07 的锁内再执行一次。先查询、后加锁的做法不够。
+- ⑤⑥⑦⑧⑩⑪⑫ 在 BR-WDR-07 的锁内再执行一次（⑤⑥ 由 D10-192 加入，2026-11-27 编排核对 D10-3494 时补写此处）。先查询、后加锁的做法不够。
 - ③a 与 BR-ID-31 对齐：黑名单命中在申请时直接拒绝（44001，提示语可配），不再只作为审核标签；申请之后才登记的黑名单，已有单据由审核人按 BR-WDR-29 的 blacklist_hit 标签处理。
 - 30306 只表示开关关闭；账务差异冻结（BR-FUND-19）不再返回 30306，统一记为 withdraw_holds（reason=ledger_mismatch），在 ⑦ 返回 30303 reason=account_frozen，因此自然先于 ⑧ 的 30302。
 - 例：用户余额 −¥2.00（有订单被扣回），申请 ¥1 → 在第 ⑧ 步返回 30302。
